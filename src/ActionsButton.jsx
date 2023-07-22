@@ -19,24 +19,23 @@ function ActionsButton(): JSX.Element {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         position: 'absolute',
         bottom: 10,
         right: 10,
         width: 60,
         height: 60,
-        backgroundColor: 'white',
         borderRadius: 50,
         borderWidth: 2,
         borderColor: 'black',
+        backgroundColor: 'white'
     },
     plus: {
         textAlign: 'center',
         textAlignVertical: 'center',
         fontSize: 50,
         lineHeight: 60,
+        color: 'black',
+        opacity: 100
     }
 });
 

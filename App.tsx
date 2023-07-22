@@ -1,14 +1,21 @@
 import { ScrollView, StyleSheet, StatusBar, View } from 'react-native';
-import ActionsButton from './ActionsButton';
-import PostCard from './PostCard.jsx';
+import ActionsButton from './src/ActionsButton';
+import PostCard from './src/PostCard.jsx';
 
 function App(): JSX.Element {
   return (
     <View style={styles.container}>
-      <StatusBar style="auto" />
       <ActionsButton />
       <ScrollView style={styles.posts}>
-        <PostCard postID={123} />
+        <PostCard postID={1} hasMedia={true} />
+        <PostCard postID={2} hasMedia={false} />
+        <PostCard postID={3} hasMedia={false} />
+        <PostCard postID={1} hasMedia={true} />
+        <PostCard postID={2} hasMedia={false} />
+        <PostCard postID={3} hasMedia={false} />
+        <PostCard postID={1} hasMedia={true} />
+        <PostCard postID={2} hasMedia={false} />
+        <PostCard postID={3} hasMedia={true} />
       </ScrollView>
     </View>
   );
@@ -16,12 +23,12 @@ function App(): JSX.Element {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    borderWidth: 10,
-    borderColor: 'green'
-  }
+    height: '100%',
+  },
+  posts: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
 });
 
 export default App;

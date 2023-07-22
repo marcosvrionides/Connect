@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TextInput } from 'react-native';
+import Colours from './Colours'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -14,7 +15,7 @@ function PostCard(props): JSX.Element {
         <View style={styles.container}>
             <View style={styles.topSection}>
                 {/* <Image style={styles.profilePic} /> */}
-                <Ionicons name="person-circle" size={50} color='black' />
+                <Ionicons name="person-circle" size={50} color={Colours.primary} />
                 <View style={styles.nameDate}>
                     <Text style={styles.posterName}>username</Text>
                     <Text style={styles.postDate}>01:05 - 22/07/23</Text>
@@ -28,9 +29,9 @@ function PostCard(props): JSX.Element {
             <Text>{postID}</Text>
             <View style={styles.bottomSection}>
                 <TextInput style={styles.commentInput} />
-                <MaterialCommunityIcons name='comment-minus-outline' size={25} color='black' />
-                <FontAwesome name='heart-o' size={25} color='black' />
-                <Feather name='send' size={25} color='black' />
+                <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} />
+                <FontAwesome name='heart-o' size={25} color={Colours.primary} />
+                <Feather name='send' size={25} color={Colours.primary} />
             </View>
 
         </View>
@@ -43,12 +44,11 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         gap: 10,
-        borderWidth: 2,
-        borderLeftWidth: 0,
-        borderRightWidth: 0,
+        borderBottomWidth: 2,
         width: '100%',
         padding: 10,
         marginBottom: 10,
+        borderColor: Colours.secondary
     },
     topSection: {
         display: 'flex',
@@ -69,33 +69,34 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderWidth: 2,
-        borderColor: 'black',
+        borderColor: Colours.primary,
         borderRadius: 25
     },
     posterName: {
         fontWeight: 'bold',
-        color: 'black'
+        color: Colours.text
     },
     postDate: {
         fontWeight: '300',
-        color: 'black'
+        color: Colours.text
     },
     postText: {
         fontWeight: 'normal',
-        color: 'black',
+        color: Colours.text
     },
     mediaPreview: {
         width: '100%',
         height: 500,
         borderWidth: 2,
-        borderColor: 'black',
-        borderRadius: 25
+        borderColor: Colours.primary,
+        borderRadius: 25,
+        backgroundColor: Colours.accent
     },
     commentInput: {
         flex: 1,
         height: 25,
         borderWidth: 2,
-        borderColor: 'black',
+        borderColor: Colours.primary,
     }
 });
 

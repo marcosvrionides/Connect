@@ -1,4 +1,5 @@
 import { ScrollView, StyleSheet, StatusBar, View } from 'react-native';
+import Colours from './src/Colours';
 import ActionsButton from './src/ActionsButton';
 import PostCard from './src/PostCard.jsx';
 
@@ -24,6 +25,7 @@ function App(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     height: '100%',
+    backgroundColor: Colours.background
   },
   posts: {
     display: 'flex',

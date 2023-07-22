@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import Colours from './Colours';
 
 function ActionsButton(): JSX.Element {
     const [isTapped, setIsTapped] = useState(false);
@@ -10,9 +11,7 @@ function ActionsButton(): JSX.Element {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={handleTap}>
-                <Text style={styles.plus}>+</Text>
-            </TouchableOpacity>
+            <TouchableOpacity  onPress={handleTap} style={styles.button} />
         </View>
     );
 }
@@ -25,18 +24,15 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 50,
-        borderWidth: 2,
-        borderColor: 'black',
-        backgroundColor: 'white'
     },
-    plus: {
-        textAlign: 'center',
-        textAlignVertical: 'center',
-        fontSize: 50,
-        lineHeight: 60,
-        color: 'black',
-        opacity: 100
-    }
+    button: {
+        backgroundColor: Colours.accent,
+        width: '100%',
+        height: '100%',
+        borderRadius: 50,
+        borderWidth: 5,
+        borderColor: Colours.primary,
+    },
 });
 
 export default ActionsButton;

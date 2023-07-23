@@ -14,13 +14,13 @@ function PostCard(props): Promise<JSX.Element> {
     const [postImageURL, setPostImageURL] = useState(null);
     const [posterProfilePic, setPosterProfilePic] = useState(null);
 
-    // const date = new Date(postData.timestamp)
-    // const hours = String(date.getHours()).padStart(2, '0');
-    // const minutes = String(date.getMinutes()).padStart(2, '0');
-    // const day = String(date.getDate()).padStart(2, '0');
-    // const month = String(date.getMonth() + 1).padStart(2, '0');
-    // const year = String(date.getFullYear()).slice(2); // Get the last two digits of the year
-    // const formattedDate = `${hours}:${minutes} - ${day}/${month}/${year}`;
+    const date = new Date(postData.timestamp)
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(2); // Get the last two digits of the year
+    const formattedDate = `${hours}:${minutes} - ${day}/${month}/${year}`;
 
     useEffect(() => {
         // Fetch the post data from Firebase using the postID prop
@@ -89,7 +89,7 @@ function PostCard(props): Promise<JSX.Element> {
                 <Image style={styles.profilePic} source={{ uri: posterProfilePic }} />
                 <View style={styles.nameDate}>
                     <Text style={styles.posterName}>{postData.displayName}</Text>
-                    <Text style={styles.postDate}>{'formattedDate'}</Text>
+                    <Text style={styles.postDate}>{formattedDate}</Text>
                 </View>
             </View>
             <Text style={styles.postText}>{postData.content}</Text>

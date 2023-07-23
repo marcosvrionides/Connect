@@ -1,11 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Colours from '../Colours';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 
-function MessageCard(): JSX.Element {
+function MessageCard(props): JSX.Element {
+
+    const navigation = useNavigation();
+
+    const handleOpenChat = () => {
+        navigation.navigate('OpenChat', { messageID: props.messageID });
+    }
+
     return (
-        <View style={styles.container}>
+        <TouchableOpacity style={styles.container} onPress={() => { handleOpenChat('messageID') }}>
             <Image
                 source={{ uri: 'https://example.com/profile-image.jpg' }} // Replace with the actual profile picture URL
                 style={styles.profilePic}
@@ -14,8 +21,8 @@ function MessageCard(): JSX.Element {
                 <Text style={styles.sender}>Sender Username</Text>
                 <Text style={styles.messagePreview}>Message preview</Text>
             </View>
-            <Text style={styles.time}>10:00 AM</Text>
-        </View>
+            <Text style={styles.time}>{props.messageID} - 10:00 AM</Text>
+        </TouchableOpacity>
     );
 }
 

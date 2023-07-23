@@ -12,6 +12,8 @@ function PostCard(props): Promise<JSX.Element> {
 
     const [postData, setPostData] = useState(null);
     const [postImageURL, setPostImageURL] = useState(null);
+    const [posterProfilePic, setPosterProfilePic] = useState(null);
+
     // const date = new Date(postData.timestamp)
     // const hours = String(date.getHours()).padStart(2, '0');
     // const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -22,12 +24,12 @@ function PostCard(props): Promise<JSX.Element> {
 
     useEffect(() => {
         // Fetch the post data from Firebase using the postID prop
-        const reference = firebase
+        const postsRreference = firebase
             .app()
             .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
             .ref('/posts/' + props.postID);
 
-        reference.on('value', async (snapshot) => {
+        postsRreference.on('value', async (snapshot) => {
             const data = snapshot.val();
             setPostData(data);
 
@@ -43,29 +45,55 @@ function PostCard(props): Promise<JSX.Element> {
             }
         });
 
+
+
         // Clean up the listener when the component unmounts
         return () => {
-            reference.off();
+            postsRreference.off();
         };
 
+
     }, [props.postID]);
+
+    useEffect(() => {
+        if (postData) {
+            const usersRreference = firebase
+                .app()
+                .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
+                .ref('/users/' + postData.uid);
+
+            usersRreference.on('value', async (snapshot) => {
+                const data = snapshot.val();
+                const profilePicURL = data.profilePicture;
+                if (snapshot.key === postData.uid) {
+                    setPosterProfilePic(profilePicURL === "" ? 'https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b' : profilePicURL);
+                  }
+            });
+
+            // Clean up the listener when the component unmounts
+            return () => {
+                usersRreference.off();
+            };
+        }
+    }, [postData])
 
     if (!postData) {
         // Post data is still being fetched, or no data found
         return null;
     }
 
+    console.log(posterProfilePic)
     return (
         <View style={styles.container}>
             <View style={styles.topSection}>
-                <Ionicons name="person-circle" size={50} color={Colours.primary} />
+                <Image style={styles.profilePic} source={{ uri: posterProfilePic }} />
                 <View style={styles.nameDate}>
                     <Text style={styles.posterName}>{postData.displayName}</Text>
                     <Text style={styles.postDate}>{'formattedDate'}</Text>
                 </View>
             </View>
             <Text style={styles.postText}>{postData.content}</Text>
-            {postData.file !== 'no file' && <Image style={styles.mediaPreview} source={{ uri: postImageURL }} resizeMode="contain"/>}
+            {postData.file !== 'no file' && <Image style={styles.mediaPreview} source={{ uri: postImageURL }} resizeMode="contain" />}
             <View style={styles.bottomSection}>
                 <TextInput style={styles.commentInput} />
                 <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} />

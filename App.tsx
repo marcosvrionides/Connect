@@ -1,36 +1,20 @@
-import { ScrollView, StyleSheet, StatusBar, View } from 'react-native';
-import Colours from './src/Colours';
-import ActionsButton from './src/ActionsButton';
-import PostCard from './src/PostCard.jsx';
+import { ScrollView, StyleSheet, StatusBar, View, Text } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Homescreen from './src/Homescreen';
+import Messages from './src/Messages';
+
+const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
   return (
-    <View style={styles.container}>
-      <ActionsButton />
-      <ScrollView style={styles.posts}>
-        <PostCard postID={1} hasMedia={true} />
-        <PostCard postID={2} hasMedia={false} />
-        <PostCard postID={3} hasMedia={false} />
-        <PostCard postID={1} hasMedia={true} />
-        <PostCard postID={2} hasMedia={false} />
-        <PostCard postID={3} hasMedia={false} />
-        <PostCard postID={1} hasMedia={true} />
-        <PostCard postID={2} hasMedia={false} />
-        <PostCard postID={3} hasMedia={true} />
-      </ScrollView>
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name='Home' component={Homescreen} options={{headerShown: false}} />
+        <Stack.Screen name='Messages' component={Messages} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: '100%',
-    backgroundColor: Colours.background
-  },
-  posts: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-});
 
 export default App;

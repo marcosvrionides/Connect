@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "880511116664",
+    "firebase_url": "https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "studentsthoughtsfyp",
+    "storage_bucket": "studentsthoughtsfyp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:880511116664:android:91e8978d9dcf4bb75e548d",
+        "android_client_info": {
+          "package_name": "com.studentsthoughtsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "880511116664-tkievcq6mktm9f7nlckhd0kf4t3eek4m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtHDMTJIr9t22IfGXzc3qFaOdRxrdeHiw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "880511116664-4tpien08bgm7399fqjjhqa1nut50gdn7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

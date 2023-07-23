@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput } from 'react-native';
 import Colours from './Colours'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { firebase } from '@react-native-firebase/database';
@@ -13,14 +12,17 @@ function PostCard(props): Promise<JSX.Element> {
     const [postData, setPostData] = useState(null);
     const [postImageURL, setPostImageURL] = useState(null);
     const [posterProfilePic, setPosterProfilePic] = useState(null);
+    const [formattedDate, setFormatedDate] = useState(null)
 
-    const date = new Date(postData.timestamp)
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(2); // Get the last two digits of the year
-    const formattedDate = `${hours}:${minutes} - ${day}/${month}/${year}`;
+    useEffect(() => {
+        const date = new Date(postData.timestamp)
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(2);
+        setFormatedDate(`${hours}:${minutes} - ${day}/${month}/${year}`);
+    }, [postData])
 
     useEffect(() => {
         // Fetch the post data from Firebase using the postID prop
@@ -67,7 +69,7 @@ function PostCard(props): Promise<JSX.Element> {
                 const profilePicURL = data.profilePicture;
                 if (snapshot.key === postData.uid) {
                     setPosterProfilePic(profilePicURL === "" ? 'https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b' : profilePicURL);
-                  }
+                }
             });
 
             // Clean up the listener when the component unmounts
@@ -89,7 +91,7 @@ function PostCard(props): Promise<JSX.Element> {
                 <Image style={styles.profilePic} source={{ uri: posterProfilePic }} />
                 <View style={styles.nameDate}>
                     <Text style={styles.posterName}>{postData.displayName}</Text>
-                    <Text style={styles.postDate}>{formattedDate}</Text>
+                    {formattedDate !== null && <Text style={styles.postDate}>{formattedDate}</Text>}
                 </View>
             </View>
             <Text style={styles.postText}>{postData.content}</Text>

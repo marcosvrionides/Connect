@@ -1,10 +1,10 @@
 const colors = {
-    text: '#fafafa',
-    background: '#050505',
-    primary: '#149414',
-    secondary: '#062d06',
-    accent: '#a3c2a6',
-  };
-  
-  export default colors;
-  
+  text: 'white',
+  background: '#0B2929', // Dark Greenish Blue
+  primary: '#19B18B',    // Bright Green
+  secondary: '#065C06',  // Dark Green
+  accent: '#29A6B1',     // Turquoise
+  hackerGreen: '#1AC702', // Hacker Green (Updated shade)
+};
+
+export default colors;

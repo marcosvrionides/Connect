@@ -51,13 +51,10 @@ function PostCard(props): Promise<JSX.Element> {
             }
         });
 
-
-
         // Clean up the listener when the component unmounts
         return () => {
             postsRreference.off();
         };
-
 
     }, [props.postID]);
 

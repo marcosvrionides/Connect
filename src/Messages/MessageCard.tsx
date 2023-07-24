@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         borderRadius: 10,
-        marginBottom: 5
+        margin: 5,
     },
     profilePic: {
         height: 60,
@@ -70,15 +70,15 @@ const styles = StyleSheet.create({
     sender: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: Colours.primary,
+        color: Colours.text,
     },
     messagePreview: {
         fontSize: 14,
-        color: Colours.primary,
+        color: Colours.text,
     },
     time: {
         fontSize: 12,
-        color: Colours.primary,
+        color: Colours.text,
     },
 });
 

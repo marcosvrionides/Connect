@@ -7,6 +7,8 @@ import auth from '@react-native-firebase/auth';
 import { Text, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import Login from './src/Login';
+import Settings from './src/Settings';
+import NewPostForm from './src/NewPostForm';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,6 +43,8 @@ function App(): JSX.Element {
         <Stack.Screen name='Home' component={Homescreen} options={{ headerShown: false }} />
         <Stack.Screen name='Messages' component={Messages} options={{ headerShown: false }} />
         <Stack.Screen name='OpenChat' component={OpenChat} options={{ headerShown: false }} />
+        <Stack.Screen name='Settings' component={Settings} options={{ headerShown: false }} />
+        <Stack.Screen name='NewPostForm' component={NewPostForm} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

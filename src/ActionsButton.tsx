@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 
 function ActionsButton(): JSX.Element {
     const [isTapped, setIsTapped] = useState(false);
-    const [containerHeight, setContainerHeight] = useState(100);
+    const [containerHeight, setContainerHeight] = useState(80);
 
     const handleTap = () => {
         setIsTapped(!isTapped);
@@ -24,12 +24,23 @@ function ActionsButton(): JSX.Element {
     const navigation = useNavigation();
 
     const handleOpenMessages = () => {
+        setIsTapped(false);
         navigation.navigate('Messages');
     };
 
+    const handleOpenSettings = () => {
+        setIsTapped(false);
+        navigation.navigate('Settings')
+    }
+
+    const handleNewPost = () => {
+        setIsTapped(false);
+        navigation.navigate('NewPostForm')
+    }
+
     useEffect(() => {
         if (isTapped) {
-            setContainerHeight(250);
+            setContainerHeight(290);
         } else {
             setContainerHeight(80);
         }
@@ -42,7 +53,8 @@ function ActionsButton(): JSX.Element {
                 <View style={styles.actions}>
                     <MaterialCommunityIcons name={'message'} size={35} color={'black'} onPress={handleOpenMessages} />
                     <FontAwesome name={'search'} size={35} color={'black'} />
-                    <FontAwesome name={'pencil'} size={35} color={'black'} />
+                    <FontAwesome name={'pencil'} size={35} color={'black'} onPress={handleNewPost} />
+                    <FontAwesome name={'gear'} size={35} color={'black'} onPress={handleOpenSettings} />
                     <HorizontalLine />
                     <FontAwesome name={'close'} size={35} color={'black'} onPress={handleCloseActions} />
                 </View>
@@ -58,9 +70,12 @@ const styles = StyleSheet.create({
         right: 10,
         width: 80,
         height: 80,
+        borderWidth: 5,
+        borderColor: 'white',
+        borderRadius: 50
     },
     button: {
-        backgroundColor: Colours.accent,
+        backgroundColor: Colours.background,
         width: '100%',
         height: '100%',
         borderRadius: 50,

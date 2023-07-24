@@ -88,7 +88,6 @@ function PostCard(props): Promise<JSX.Element> {
         return null;
     }
 
-    console.log(posterProfilePic)
     return (
         <View style={styles.container}>
             <View style={styles.topSection}>

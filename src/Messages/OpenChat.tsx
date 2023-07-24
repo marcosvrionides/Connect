@@ -1,40 +1,36 @@
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Colours from '../Colours';
+import { firebase } from '@react-native-firebase/database';
 
 const OpenChat = ({ route }) => {
-    const messageID = route.params.messageID
 
-    const [messages, setMessages] = useState(
-        [
-            { text: "hello", sender: 'user' },
-            { text: "how are you?", sender: 'friend' },
-            { text: "I'm good thanks!", sender: 'user' },
-            { text: "how are you?", sender: 'user' },
-            { text: "I'm doing well too, thank you!", sender: 'friend' },
-            { text: "It's been a busy day for me, but I'm glad to chat with you.", sender: 'friend' },
-            { text: "What have you been up to?", sender: 'friend' },
-            { text: "I had a great weekend with my family. We went hiking and had a picnic.", sender: 'user' },
-            { text: "That sounds lovely! I'm glad you had a good time.", sender: 'friend' },
-            { text: "I wish I could have joined you on that hike.", sender: 'friend' },
-            { text: "Don't worry, we'll plan another outing soon and you can join us!", sender: 'user' },
-            { text: "That would be fantastic! Let me know when you have something in mind.", sender: 'friend' },
-            { text: "Sure, I'll keep you posted.", sender: 'user' },
-            { text: "By the way, did you watch the latest movie that we were excited about?", sender: 'user' },
-            { text: "Oh yes, I did! It was amazing. The special effects were mind-blowing.", sender: 'friend' },
-            { text: "I thought so too! The plot kept me on the edge of my seat throughout the entire movie.", sender: 'user' },
-            { text: "I can't wait for the sequel.It's going to be epic!", sender: 'friend' },
-            { text: "Definitely! We should plan to watch it together when it's released.", sender: 'user' },
-            { text: "Absolutely! It's always more fun to watch movies with friends.", sender: 'friend' },
-            { text: "Hey, have you tried that new restaurant that opened downtown?", sender: 'user' },
-            { text: "Not yet, but I've heard great things about it.The food is supposed to be delicious!", sender: 'friend' },
-            { text: "We should go there sometime and try it together.", sender: 'friend' },
-            { text: "That sounds like a plan! Let's make a reservation for next weekend.", sender: 'user' },
-            { text: "Count me in! I can't wait to taste their famous dishes.", sender: 'friend' },
-            { text: "It's a date then! I'm already looking forward to it.", sender: 'user' },
-            { text: "Me too! Time spent with friends is always the best.", sender: 'friend' }
-        ]
-    );
+    const username = route.params.username
+    const firstUID = 'NklwzmKylWULK6Jkvlb6of6MTSI3'
+    const secondUID = route.params.uid
+    const uids = [firstUID, secondUID].sort()
+    const chatRef = "/messages/" + uids[0] + uids[1]
+
+    const [messages, setMessages] = useState([]);
+
+    useEffect(() => {
+        const messagesReference = firebase
+            .app()
+            .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
+            .ref(chatRef);
+
+        messagesReference.on('value', async (snapshot) => {
+            snapshot.forEach((childSnapshot) => {
+                setMessages((oldMessages) => [...oldMessages, childSnapshot.val()])
+            })
+        });
+
+        // Clean up the listener when the component unmounts
+        return () => {
+            messagesReference.off();
+        }
+    }, [])
+
     const [newMessage, setNewMessage] = useState('');
 
     const handleSendMessage = () => {
@@ -42,19 +38,64 @@ const OpenChat = ({ route }) => {
             return;
         }
 
-        setMessages([...messages, { text: newMessage, sender: 'user' }]);
+        // Create a reference to the database location where you want to store the new message
+        const newMessageRef = firebase
+            .app()
+            .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
+            .ref(chatRef)
+            .push();
+
+        // Define the message object to be saved in the database
+        const newMessageObj = {
+            fromDisplayName: "Marcos Vrionides",
+            fromUid: firstUID,
+            message: newMessage,
+            read: "sent",
+            timestamp: new Date().getTime(),
+            to: secondUID
+        };
+
+        // Save the new message to the database using the push() method
+        newMessageRef
+            .set(newMessageObj)
+            .catch((error) => {
+                // Handle any errors that occurred while saving the message
+                console.error('Error saving message:', error);
+            });
+
+        // Clear the new message input field after sending
         setNewMessage('');
     };
+
+    const isSameDay = (date1, date2) => {
+        const d1 = new Date(date1);
+        const d2 = new Date(date2);
+        return d1.toDateString() === d2.toDateString();
+    };
+
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>{messageID}</Text>
+            <Text style={styles.header}>{username}</Text>
             <FlatList
                 data={messages}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <View style={item.sender === 'user' ? styles.userMessageContainer : styles.botMessageContainer}>
-                        <Text style={styles.messageText}>{item.text}</Text>
-                    </View>
+                renderItem={({ item, index }) => (
+                    <>
+                        {!index || !isSameDay(messages[index - 1].timestamp, item.timestamp) ? (
+                            <Text style={styles.daySeparator}>
+                                {new Date(item.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                            </Text>
+                        ) : null}
+                        <View style={item.fromUid === firstUID ? styles.userMessageContainer : styles.botMessageContainer}>
+                            <Text style={styles.messageText}>{item.message}</Text>
+                            <View style={styles.time_ReadReceipt}>
+                                <Text style={styles.timestampText}>{new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit' })}</Text>
+                                {item.fromUid === firstUID && (
+                                    <Text style={styles.readReceiptText}>{item.read === 'sent' ? 'Sent' : 'Read'}</Text>
+                                )}
+                            </View>
+                        </View>
+                    </>
                 )}
             />
 
@@ -96,6 +137,7 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         borderRadius: 8,
         borderBottomRightRadius: 0,
+        minWidth: '40%'
     },
     botMessageContainer: {
         color: Colours.text,
@@ -132,5 +174,26 @@ const styles = StyleSheet.create({
     sendButtonText: {
         color: Colours.text,
         fontWeight: 'bold',
+    },
+    timestampText: {
+        color: Colours.text,
+        fontSize: 12,
+        alignSelf: 'flex-end',
+    },
+    readReceiptText: {
+        color: Colours.text,
+        fontSize: 12,
+        alignSelf: 'flex-end',
+    },
+    time_ReadReceipt: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    daySeparator: {
+        color: Colours.text,
+        fontSize: 14,
+        alignSelf: 'center',
+        paddingVertical: 8,
     },
 })

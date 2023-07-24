@@ -1,27 +1,44 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, StyleSheet, ScrollView } from 'react-native';
 import Colours from '../Colours'
 import MessageCard from './MessageCard';
+import { firebase } from '@react-native-firebase/database';
 
 function Messages(): JSX.Element {
+    const current_uid = 'NklwzmKylWULK6Jkvlb6of6MTSI3'//change to get uid of logged in user
+    const [chats, setChats] = useState([]);
+
+    useEffect(() => {
+        const messagesRreference = firebase
+            .app()
+            .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
+            .ref('/messages/');
+
+        messagesRreference.on('value', async (snapshot) => {
+            const updatedChats = [];
+
+            snapshot.forEach((childSnapshot) => {
+                const halfIndex = Math.floor(childSnapshot.key.length / 2);
+
+                const firstHalf = childSnapshot.key.substring(0, halfIndex);
+                const secondHalf = childSnapshot.key.substring(halfIndex);
+                if (current_uid === firstHalf) {
+                    updatedChats.push(secondHalf);
+                } else if (current_uid === secondHalf) {
+                    updatedChats.push(firstHalf);
+                }
+            })
+
+            setChats(updatedChats);
+        });
+    }, [current_uid]);
 
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.header}>Messages</Text>
-            <MessageCard messageID={1} />
-            <MessageCard messageID={2} />
-            <MessageCard messageID={3} />
-            <MessageCard messageID={4} />
-            <MessageCard messageID={5} />
-            <MessageCard messageID={6} />
-            <MessageCard messageID={7} />
-            <MessageCard messageID={8} />
-            <MessageCard messageID={9} />
-            <MessageCard messageID={0} />
-            <MessageCard messageID={10} />
-            <MessageCard messageID={11} />
-            <MessageCard messageID={12} />
-            <MessageCard messageID={13} />
+            {chats.map((chat, index) => (
+                <MessageCard key={index} secondUserID={chat} />
+            ))}
         </ScrollView>
     );
 }

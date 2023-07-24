@@ -3,9 +3,12 @@ import { Text, StyleSheet, ScrollView } from 'react-native';
 import Colours from '../Colours'
 import MessageCard from './MessageCard';
 import { firebase } from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth'
+import { ReactNativeFirebase } from '@react-native-firebase/app';
 
 function Messages(): JSX.Element {
-    const current_uid = 'NklwzmKylWULK6Jkvlb6of6MTSI3'//change to get uid of logged in user
+
+    const current_uid = auth().currentUser.uid
     const [chats, setChats] = useState([]);
 
     useEffect(() => {

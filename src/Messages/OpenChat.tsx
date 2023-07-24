@@ -2,11 +2,12 @@ import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'r
 import React, { useEffect, useState } from 'react';
 import Colours from '../Colours';
 import { firebase } from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth'
 
 const OpenChat = ({ route }) => {
 
     const username = route.params.username
-    const firstUID = 'NklwzmKylWULK6Jkvlb6of6MTSI3'
+    const firstUID = auth().currentUser.uid
     const secondUID = route.params.uid
     const uids = [firstUID, secondUID].sort()
     const chatRef = "/messages/" + uids[0] + uids[1]
@@ -47,7 +48,7 @@ const OpenChat = ({ route }) => {
 
         // Define the message object to be saved in the database
         const newMessageObj = {
-            fromDisplayName: "Marcos Vrionides",
+            fromDisplayName: auth().currentUser.displayName,
             fromUid: firstUID,
             message: newMessage,
             read: "sent",

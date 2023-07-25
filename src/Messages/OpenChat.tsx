@@ -1,8 +1,8 @@
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Colours from '../Colours';
 import { firebase } from '@react-native-firebase/database';
-import auth from '@react-native-firebase/auth'
+import auth from '@react-native-firebase/auth';
 
 const OpenChat = ({ route }) => {
 
@@ -13,8 +13,12 @@ const OpenChat = ({ route }) => {
     const chatRef = "/messages/" + uids[0] + uids[1]
 
     const [messages, setMessages] = useState([]);
+    const [updateMessages, setUpdateMessages] = useState(false);
+
+    const flatListRef = useRef(null);
 
     useEffect(() => {
+        setMessages([])
         const messagesReference = firebase
             .app()
             .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
@@ -28,9 +32,10 @@ const OpenChat = ({ route }) => {
 
         // Clean up the listener when the component unmounts
         return () => {
+            setUpdateMessages(false)
             messagesReference.off();
         }
-    }, [])
+    }, [updateMessages])
 
     const [newMessage, setNewMessage] = useState('');
 
@@ -66,6 +71,7 @@ const OpenChat = ({ route }) => {
 
         // Clear the new message input field after sending
         setNewMessage('');
+        setUpdateMessages(true);
     };
 
     const isSameDay = (date1, date2) => {
@@ -78,11 +84,13 @@ const OpenChat = ({ route }) => {
         <View style={styles.container}>
             <Text style={styles.header}>{username}</Text>
             <FlatList
-                data={messages}
+                ref={flatListRef}
+                data={[...messages].reverse()}
                 keyExtractor={(item, index) => index.toString()}
+                inverted={true}
                 renderItem={({ item, index }) => (
                     <>
-                        {!index || !isSameDay(messages[index - 1].timestamp, item.timestamp) ? (
+                        {index === messages.length - 1 || !isSameDay(item.timestamp, messages[messages.length - index - 2].timestamp) ? (
                             <Text style={styles.daySeparator}>
                                 {new Date(item.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                             </Text>
@@ -90,7 +98,7 @@ const OpenChat = ({ route }) => {
                         <View style={item.fromUid === firstUID ? styles.userMessageContainer : styles.botMessageContainer}>
                             <Text style={styles.messageText}>{item.message}</Text>
                             <View style={styles.time_ReadReceipt}>
-                                <Text style={styles.timestampText}>{new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit' })}</Text>
+                                <Text style={styles.timestampText}>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
                                 {item.fromUid === firstUID && (
                                     <Text style={styles.readReceiptText}>{item.read === 'sent' ? 'Sent' : 'Read'}</Text>
                                 )}
@@ -99,7 +107,6 @@ const OpenChat = ({ route }) => {
                     </>
                 )}
             />
-
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.input}
@@ -197,4 +204,12 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         paddingVertical: 8,
     },
+    downArrow: {
+        backgroundColor: Colours.accent,
+        position: 'absolute',
+        bottom: 90,
+        right: 20,
+        borderRadius: 17.5,
+        padding: 2.5,
+    }
 })

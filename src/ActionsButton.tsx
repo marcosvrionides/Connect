@@ -51,12 +51,12 @@ function ActionsButton(): JSX.Element {
             <TouchableOpacity onPress={handleTap} style={styles.button} />
             {isTapped && (
                 <View style={styles.actions}>
-                    <MaterialCommunityIcons name={'message'} size={35} color={'black'} onPress={handleOpenMessages} />
-                    <FontAwesome name={'search'} size={35} color={'black'} />
-                    <FontAwesome name={'pencil'} size={35} color={'black'} onPress={handleNewPost} />
-                    <FontAwesome name={'gear'} size={35} color={'black'} onPress={handleOpenSettings} />
+                    <MaterialCommunityIcons name={'message'} size={35} color={Colours.text} onPress={handleOpenMessages} />
+                    <FontAwesome name={'search'} size={35} color={Colours.text} />
+                    <FontAwesome name={'pencil'} size={35} color={Colours.text} onPress={handleNewPost} />
+                    <FontAwesome name={'gear'} size={35} color={Colours.text} onPress={handleOpenSettings} />
                     <HorizontalLine />
-                    <FontAwesome name={'close'} size={35} color={'black'} onPress={handleCloseActions} />
+                    <FontAwesome name={'close'} size={35} color={Colours.text} onPress={handleCloseActions} />
                 </View>
             )}
         </View>

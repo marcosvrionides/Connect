@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, TouchableWithoutFeedback, Alert } from 'react-native';
 import Colours from './Colours';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
 
 function ActionsButton(): JSX.Element {
     const [isTapped, setIsTapped] = useState(false);
@@ -24,8 +25,12 @@ function ActionsButton(): JSX.Element {
     const navigation = useNavigation();
 
     const handleOpenMessages = () => {
-        setIsTapped(false);
-        navigation.navigate('Messages');
+        if (auth().currentUser?.isAnonymous) {
+            Alert.alert('Please log in to access messages')
+        } else {
+            setIsTapped(false);
+            navigation.navigate('Messages');
+        }
     };
 
     const handleOpenSettings = () => {
@@ -34,8 +39,12 @@ function ActionsButton(): JSX.Element {
     }
 
     const handleNewPost = () => {
-        setIsTapped(false);
-        navigation.navigate('NewPostForm')
+        if (auth().currentUser?.isAnonymous) {
+            Alert.alert('Please log in to create a post')
+        } else {
+            setIsTapped(false);
+            navigation.navigate('NewPostForm')
+        }
     }
 
     useEffect(() => {

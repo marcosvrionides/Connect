@@ -18,7 +18,7 @@ export default function Settings() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{auth().currentUser.displayName}</Text>
+            <Text style={styles.title}>{auth().currentUser.displayName || 'Anonymous'}</Text>
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                 <Text style={styles.logoutButtonText}>Logout</Text>
             </TouchableOpacity>

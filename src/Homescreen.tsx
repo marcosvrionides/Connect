@@ -15,7 +15,6 @@ function Homescreen(): JSX.Element {
             .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
             .ref('/posts')
             .on('value', snapshot => {
-                console.log(snapshot)
                 const data = snapshot.val();
                 const ids = Object.keys(data);
                 setPostIds(ids);

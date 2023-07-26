@@ -41,6 +41,15 @@ export default function Login() {
         }
     };
 
+    const handleGuestLogin = async () => {
+        try {
+            const userCredential = await auth().signInAnonymously();
+            console.log('User signed in anonymously:', userCredential.user.uid);
+        } catch (error) {
+            console.error('Anonymous sign-in error:', error);
+        }
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Login</Text>
@@ -60,8 +69,11 @@ export default function Login() {
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
                 <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={onGoogleSignIn}>
+            <TouchableOpacity style={styles.googleButton} onPress={onGoogleSignIn}>
                 <Text style={styles.buttonText}>Login with Google</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.guestButton} onPress={handleGuestLogin}>
+                <Text style={styles.buttonText}>Continue without an account</Text>
             </TouchableOpacity>
         </View>
     );
@@ -72,29 +84,48 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#f0f0f0', // Add a light background color
     },
     title: {
-        fontSize: 24,
+        fontSize: 32,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: 30,
+        color: '#333', // Add a dark text color
     },
     input: {
         width: '80%',
         height: 40,
-        borderColor: 'gray',
+        borderColor: '#ccc',
         borderWidth: 1,
         marginBottom: 20,
         paddingHorizontal: 10,
+        borderRadius: 5, // Add rounded corners to the input fields
+        backgroundColor: '#fff', // Add a white background color
     },
     button: {
-        backgroundColor: 'blue',
+        backgroundColor: '#007bff', // Use Bootstrap's primary blue color
         paddingHorizontal: 20,
-        paddingVertical: 10,
+        paddingVertical: 12,
         borderRadius: 5,
-        marginBottom: 10
+        marginBottom: 15,
+    },
+    googleButton: {
+        backgroundColor: '#db4a39', // Use a red color for Google sign-in
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 5,
+        marginBottom: 15,
+    },
+    guestButton: {
+        backgroundColor: '#777', // Use a dark gray color for guest login
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 5,
+        marginBottom: 15,
     },
     buttonText: {
-        color: 'white',
+        color: '#fff', // Use white text color for buttons
         fontWeight: 'bold',
+        textAlign: 'center',
     },
 });

@@ -6,6 +6,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { firebase } from '@react-native-firebase/database';
 import storage from '@react-native-firebase/storage';
+import auth from '@react-native-firebase/auth';
 
 function PostCard(props): Promise<JSX.Element> {
 
@@ -13,6 +14,17 @@ function PostCard(props): Promise<JSX.Element> {
     const [postImageURL, setPostImageURL] = useState(null);
     const [posterProfilePic, setPosterProfilePic] = useState(null);
     const [formattedDate, setFormatedDate] = useState(null)
+    const [liked, setLiked] = useState(false);
+
+    const postsRreference = firebase
+        .app()
+        .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
+        .ref('/posts/' + props.postID);
+
+    const likesRreference = firebase
+        .app()
+        .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
+        .ref('/likes/' + props.postID + '/' + auth().currentUser.uid);
 
     useEffect(() => {
         try {
@@ -28,13 +40,8 @@ function PostCard(props): Promise<JSX.Element> {
         }
     }, [postData])
 
-    useEffect(() => {
-        // Fetch the post data from Firebase using the postID prop
-        const postsRreference = firebase
-            .app()
-            .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
-            .ref('/posts/' + props.postID);
 
+    useEffect(() => {
         postsRreference.on('value', async (snapshot) => {
             const data = snapshot.val();
             setPostData(data);
@@ -51,9 +58,17 @@ function PostCard(props): Promise<JSX.Element> {
             }
         });
 
+
+        likesRreference.on('value', (snapshot) => {
+            if (snapshot.val()) (
+                setLiked(snapshot.val().like)
+            )
+        })
+
         // Clean up the listener when the component unmounts
         return () => {
             postsRreference.off();
+            likesRreference.off();
         };
 
     }, [props.postID]);
@@ -85,6 +100,28 @@ function PostCard(props): Promise<JSX.Element> {
         return null;
     }
 
+    const handleSetLike = () => {
+        if (auth().currentUser?.isAnonymous) {
+            setLiked(!liked)
+            return;
+        }
+        postsRreference.transaction((postData) => {
+            if (postData) {
+                // If the post exists, update the likes count
+                if (liked) {
+                    postData.likes--;
+                } else {
+                    postData.likes++;
+                }
+                setLiked(!liked);
+            }
+            return postData;
+        });
+        likesRreference.set({
+            like: !liked
+        })
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.topSection}>
@@ -97,9 +134,13 @@ function PostCard(props): Promise<JSX.Element> {
             <Text style={styles.postText}>{postData.content}</Text>
             {postData.file !== 'no file' && <Image style={styles.mediaPreview} source={{ uri: postImageURL }} resizeMode="contain" />}
             <View style={styles.bottomSection}>
-                <TextInput style={styles.commentInput} />
+                <Text style={styles.likeCount}>{postData.likes} {postData.likes > 1 ? 'Likes' : 'Like'}</Text>
+                {liked ?
+                    <FontAwesome name='heart' size={25} color={Colours.primary} onPress={handleSetLike} />
+                    :
+                    <FontAwesome name='heart-o' size={25} color={Colours.primary} onPress={handleSetLike} />
+                }
                 <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} />
-                <FontAwesome name='heart-o' size={25} color={Colours.primary} />
                 <Feather name='send' size={25} color={Colours.primary} />
             </View>
         </View>
@@ -127,7 +168,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         gap: 10,
-        justifyContent: 'flex-end'
+        justifyContent: 'space-between',
     },
     nameDate: {
         display: 'flex',
@@ -167,6 +208,10 @@ const styles = StyleSheet.create({
         height: 25,
         borderWidth: 2,
         borderColor: Colours.primary,
+    },
+    likeCount: {
+        color: Colours.primary,
+        fontSize: 16,
     }
 });
 

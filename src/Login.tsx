@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from 'react-native-google-signin';
+import Colours from './Colours'
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [displayName, setDisplayName] = useState('');
 
     const handleLogin = () => {
         auth()
@@ -15,7 +17,8 @@ export default function Login() {
                 console.log('User logged in successfully!', userCredential.user);
             })
             .catch((error) => {
-                console.log('Error occurred while logging in:', error);
+                console.log('Sign sign-in error:', error.message);
+                Alert.alert('Sign-in error:', error.message);
             });
     };
 
@@ -37,7 +40,8 @@ export default function Login() {
             // Sign in with the Google credential
             await auth().signInWithCredential(googleCredential);
         } catch (error) {
-            console.log('Google sign-in error:', error.message);
+            console.log('Sign sign-in error:', error.message);
+            Alert.alert('Sign-in error:', error.message);
         }
     };
 
@@ -46,34 +50,85 @@ export default function Login() {
             const userCredential = await auth().signInAnonymously();
             console.log('User signed in anonymously:', userCredential.user.uid);
         } catch (error) {
-            console.error('Anonymous sign-in error:', error);
+            console.log('Sign sign-in error:', error.message);
+            Alert.alert('Sign-in error:', error.message);
         }
     }
 
+    const handleRegister = () => {
+        auth()
+            .createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                // User has registered and signed in successfully
+                const user = userCredential.user;
+                if (user) {
+                    user.updateProfile({
+                        displayName: displayName,
+                    });
+                    console.log('User registered and logged in successfully!', user);
+                }
+            })
+            .catch((error) => {
+                console.log('Registration error:', error.message);
+                Alert.alert('Registration error:', error.message);
+            });
+    };
+
+    const [authMode, setAuthMode] = useState('register')
+    const handleChangeAuthMode = () => {
+        setAuthMode(authMode === 'register' ? 'login' : 'register');
+    }
+
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Login</Text>
+        <View behavior="padding" style={styles.container}>
+            <Text style={styles.title}>{authMode === 'register' ? 'Register' : 'Login'}</Text>
+            {authMode === 'register' && (
+                <>
+                    <Text style={styles.inputLabel}>Display Name</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter display name"
+                        onChangeText={(text) => setDisplayName(text)}
+                        value={displayName}
+                        placeholderTextColor={Colours.text}
+                    />
+                </>
+            )}
+            <Text style={styles.inputLabel}>Email address</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Email"
+                placeholder="Enter emaii"
                 onChangeText={(text) => setEmail(text)}
                 value={email}
+                placeholderTextColor={Colours.text}
             />
+            <Text style={styles.inputLabel}>Password</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder="Enter password"
                 secureTextEntry
                 onChangeText={(text) => setPassword(text)}
                 value={password}
+                placeholderTextColor={Colours.text}
             />
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
+            {authMode === 'register' ? (
+                <TouchableOpacity style={styles.button} onPress={handleRegister}>
+                    <Text style={styles.buttonText}>Register</Text>
+                </TouchableOpacity>
+            ) : (
+                <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                    <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
+            )}
             <TouchableOpacity style={styles.googleButton} onPress={onGoogleSignIn}>
                 <Text style={styles.buttonText}>Login with Google</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.guestButton} onPress={handleGuestLogin}>
+            <View style={styles.hr} />
+            <TouchableOpacity style={styles.continueAsGuestButton} onPress={handleGuestLogin}>
                 <Text style={styles.buttonText}>Continue without an account</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.noAccountButton} onPress={handleChangeAuthMode}>
+                <Text style={styles.buttonText}>{authMode === 'register' ? "Already have an account?" : "Don't have an account?"}</Text>
             </TouchableOpacity>
         </View>
     );
@@ -82,50 +137,64 @@ export default function Login() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f0f0f0', // Add a light background color
+        backgroundColor: Colours.background,
+        padding: 10,
     },
     title: {
         fontSize: 32,
         fontWeight: 'bold',
         marginBottom: 30,
-        color: '#333', // Add a dark text color
+        color: Colours.text,
+        marginVertical: 10,
     },
     input: {
-        width: '80%',
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
+        borderColor: Colours.primary,
+        borderWidth: 5,
         marginBottom: 20,
         paddingHorizontal: 10,
-        borderRadius: 5, // Add rounded corners to the input fields
-        backgroundColor: '#fff', // Add a white background color
+        borderRadius: 5,
+        color: Colours.text,
     },
     button: {
-        backgroundColor: '#007bff', // Use Bootstrap's primary blue color
+        backgroundColor: '#007bff',
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 5,
-        marginBottom: 15,
+        marginBottom: 10,
     },
     googleButton: {
-        backgroundColor: '#db4a39', // Use a red color for Google sign-in
+        backgroundColor: '#db4a39',
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 5,
-        marginBottom: 15,
+        marginBottom: 10,
     },
-    guestButton: {
-        backgroundColor: '#777', // Use a dark gray color for guest login
+    noAccountButton: {
+        backgroundColor: '#777',
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 5,
-        marginBottom: 15,
     },
     buttonText: {
-        color: '#fff', // Use white text color for buttons
+        color: '#fff',
         fontWeight: 'bold',
         textAlign: 'center',
+    },
+    inputLabel: {
+        color: Colours.text,
+        marginBottom: 5,
+    },
+    continueAsGuestButton: {
+        backgroundColor: Colours.accent,
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 5,
+        marginBottom: 10,
+    },
+    hr: {
+        borderColor: Colours.primary,
+        borderWidth: 1,
+        width: '100%',
+        marginBottom: 10,
     },
 });

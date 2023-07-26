@@ -9,6 +9,7 @@ import storage from '@react-native-firebase/storage';
 export default function NewPostForm() {
     const [text, setText] = useState('');
     const [imageUri, setImageUri] = useState('no file');
+    const [fileName, setFileName] = useState('');
 
     const handleCreatePost = async () => {
         if (text.trim() === '' && imageUri === 'no file') {
@@ -45,7 +46,7 @@ export default function NewPostForm() {
                 // Update the post object with the file path
                 const updatedPostObj = {
                     ...newPostObj,
-                    file: postId,
+                    file: fileName,
                 };
 
                 // Save the updated post object to the database
@@ -82,7 +83,7 @@ export default function NewPostForm() {
                 } else if (response.customButton) {
                     console.log('User tapped custom button: ', response.customButton);
                 } else {
-                    // Set the selected image URI to the state
+                    setFileName(response.assets[0].fileName);
                     setImageUri(response.assets[0].uri);
                 }
             },

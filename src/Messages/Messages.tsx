@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, ScrollView } from 'react-native';
+import { Text, StyleSheet, ScrollView, View, FlatList } from 'react-native';
 import Colours from '../Colours'
 import MessageCard from './MessageCard';
 import { firebase } from '@react-native-firebase/database';
@@ -37,12 +37,15 @@ function Messages(): JSX.Element {
     }, [current_uid]);
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.header}>Messages</Text>
-            {chats.map((chat, index) => (
-                <MessageCard key={index} secondUserID={chat} />
-            ))}
-        </ScrollView>
+        <View style={styles.container}>
+            <FlatList
+                style={styles.container}
+                ListHeaderComponent={<Text style={styles.header}>Messages</Text>}
+                data={chats}
+                renderItem={({ item }) => <MessageCard key={item} secondUserID={item} />}
+                keyExtractor={(item) => item}
+            />
+        </View>
     );
 }
 

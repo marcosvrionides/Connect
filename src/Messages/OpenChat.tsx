@@ -15,6 +15,8 @@ const OpenChat = ({ route }) => {
     const [messages, setMessages] = useState([]);
     const [updateMessages, setUpdateMessages] = useState(false);
 
+    const [lastRenderedDate, setLastRenderedDate] = useState(null);
+
     const flatListRef = useRef(null);
 
     useEffect(() => {
@@ -80,6 +82,17 @@ const OpenChat = ({ route }) => {
         return d1.toDateString() === d2.toDateString();
     };
 
+    useEffect(() => {
+        for (i in messages) {
+            if (i > 0) {
+                const previousMessageDate = new Date(messages[i - 1].timestamp)
+                const messageDate = new Date(messages[i].timestamp)
+                const sameDay = isSameDay(messageDate, previousMessageDate);
+                messages[i].sameDayAsPrevious = sameDay;
+            }
+        }
+    }, [messages])
+
     return (
         <View style={styles.container}>
             <Text style={styles.header}>{username}</Text>
@@ -89,12 +102,11 @@ const OpenChat = ({ route }) => {
                 keyExtractor={(item, index) => index.toString()}
                 inverted={true}
                 renderItem={({ item, index }) => (
-                    <>
-                        {index === messages.length - 1 || !isSameDay(item.timestamp, messages[messages.length - index - 2].timestamp) ? (
+                    <View>
+                        {item.sameDayAsPrevious ? null :
                             <Text style={styles.daySeparator}>
                                 {new Date(item.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
-                            </Text>
-                        ) : null}
+                            </Text>}
                         <View style={item.fromUid === firstUID ? styles.userMessageContainer : styles.botMessageContainer}>
                             <Text style={styles.messageText}>{item.message}</Text>
                             <View style={styles.time_ReadReceipt}>
@@ -104,7 +116,7 @@ const OpenChat = ({ route }) => {
                                 )}
                             </View>
                         </View>
-                    </>
+                    </View>
                 )}
             />
             <View style={styles.inputContainer}>

@@ -53,20 +53,24 @@ function PostCard(props): Promise<JSX.Element> {
             }
         });
 
+        // Clean up the listener when the component unmounts
+        return () => {
+            postsRreference.off();
+        };
 
+    }, [props]);
+
+    useEffect(() => {
         likesRreference.on('value', (snapshot) => {
             if (snapshot.val()) (
                 setLiked(snapshot.val().like)
             )
         })
 
-        // Clean up the listener when the component unmounts
         return () => {
-            postsRreference.off();
             likesRreference.off();
         };
-
-    }, [props.postID]);
+    }, [postData])
 
     useEffect(() => {
         if (postData) {

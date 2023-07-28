@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Colours from '../Colours';
 import { useNavigation } from '@react-navigation/native';
 import { firebase } from '@react-native-firebase/database';
+import database from '@react-native-firebase/database';
 
 function MessageCard(props): JSX.Element {
 
@@ -15,9 +16,7 @@ function MessageCard(props): JSX.Element {
     }
 
     useEffect(() => {
-        const usersRreference = firebase
-            .app()
-            .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
+        const usersRreference = database()
             .ref('/users/' + props.secondUserID);
 
         usersRreference.on('value', async (snapshot) => {
@@ -27,14 +26,11 @@ function MessageCard(props): JSX.Element {
                 : data.profilePicture);
         });
 
-        // Clean up the listener when the component unmounts
-        return () => {
-            usersRreference.off();
-        }
+        return () => {usersRreference.off();}
     }, [props])
 
     return (
-        <TouchableOpacity style={styles.container} onPress={() => { handleOpenChat() }}>
+        <TouchableOpacity style={styles.container} onPress={handleOpenChat}>
             <Image
                 source={{ uri: profilePic }}
                 style={styles.profilePic}
@@ -55,7 +51,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         borderRadius: 10,
-        margin: 5,
     },
     profilePic: {
         height: 60,

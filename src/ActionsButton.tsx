@@ -68,7 +68,7 @@ function ActionsButton(): JSX.Element {
                     <FontAwesome name={'search'} size={35} color={Colours.text} />
                     <FontAwesome name={'pencil'} size={35} color={Colours.text} onPress={handleNewPost} />
                     <FontAwesome name={'gear'} size={35} color={Colours.text} onPress={handleOpenSettings} />
-                    <HorizontalLine />
+                    <View style={styles.hr} />
                     <FontAwesome name={'close'} size={35} color={Colours.text} onPress={handleCloseActions} />
                 </View>
             )}

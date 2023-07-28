@@ -1,20 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, ScrollView, View, FlatList } from 'react-native';
+import { Text, StyleSheet, View, FlatList, TextInput, Image } from 'react-native';
 import Colours from '../Colours'
 import MessageCard from './MessageCard';
-import { firebase } from '@react-native-firebase/database';
-import auth from '@react-native-firebase/auth'
-import { ReactNativeFirebase } from '@react-native-firebase/app';
+import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 function Messages(): JSX.Element {
 
     const current_uid = auth().currentUser.uid
     const [chats, setChats] = useState([]);
+    const [searchInput, setSearchInput] = useState('');
+    const [searchedUsers, setSearchedUsers] = useState([]);
 
     useEffect(() => {
-        const messagesRreference = firebase
-            .app()
-            .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
+        if (searchInput.trim() === '') {
+            return;
+        }
+        const usersRef = database().ref('/users');
+        const userListener = usersRef.on('value', (snapshot) => {
+            const matchedUsers = [];
+            snapshot.forEach((userSnapshot) => {
+                const user = userSnapshot.val();
+                if (user.displayName.toLowerCase().includes(searchInput.toLowerCase())) {
+                    matchedUsers.push({ displayName: user.displayName, uid: userSnapshot.key, profilePic: user.profilePicture });
+                }
+            });
+            setSearchedUsers(matchedUsers);
+        });
+
+        // Clean up the listener when the component unmounts
+        return () => {
+            usersRef.off('value', userListener);
+        };
+    }, [searchInput]);
+
+    useEffect(() => {
+        const messagesRreference = database()
             .ref('/messages/');
 
         messagesRreference.on('value', async (snapshot) => {
@@ -39,11 +60,35 @@ function Messages(): JSX.Element {
     return (
         <View style={styles.container}>
             <FlatList
-                style={styles.container}
                 ListHeaderComponent={<Text style={styles.header}>Messages</Text>}
                 data={chats}
-                renderItem={({ item }) => <MessageCard key={item} secondUserID={item} />}
+                renderItem={({ item }) =>
+                    <View style={{marginBottom: 10}}>
+                        <MessageCard key={item} secondUserID={item} />
+                    </View>
+                }
                 keyExtractor={(item) => item}
+            />
+            {searchInput.length > 0 &&
+                <View style={styles.searchedUsersContainer}>
+                    <FlatList
+                        style={styles.searchedUsersList}
+                        data={searchedUsers}
+                        renderItem={({ item, index }) => (
+                            <>
+                                <MessageCard key={item.uid} secondUserID={item.uid} />
+                                {index < searchedUsers.length - 1 && <View style={styles.hr} />}
+                            </>
+                        )}
+                        keyExtractor={(item) => item.uid}
+                    />
+                </View>
+            }
+            <TextInput
+                style={styles.userSearch}
+                placeholder='Search...'
+                placeholderTextColor={Colours.text}
+                onChangeText={(input) => setSearchInput(input)}
             />
         </View>
     );
@@ -53,12 +98,38 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: Colours.background,
         height: '100%',
+        padding: 10,
     },
     header: {
         color: Colours.text,
         fontSize: 32,
-        margin: 20,
+        marginTop: 20,
+        marginBottom: 30,
         textAlign: 'center',
+    },
+    userSearch: {
+        width: '100%',
+        backgroundColor: Colours.primary,
+        borderRadius: 10,
+        fontSize: 20,
+        color: Colours.text
+    },
+    searchedUsersContainer: {
+        width: '100%',
+        maxHeight: '90%',
+        backgroundColor: Colours.background,
+        marginBottom: 10,
+        borderRadius: 10,
+        padding: 10,
+        borderWidth: 5,
+        borderColor: Colours.primary
+    },
+    hr: {
+        borderColor: Colours.primary,
+        borderWidth: 1,
+        width: '95%',
+        marginVertical: 10,
+        alignSelf: 'center'
     },
 });
 

@@ -3,36 +3,35 @@ import React, { useEffect, useRef, useState } from 'react';
 import Colours from '../Colours';
 import { firebase } from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 
 const OpenChat = ({ route }) => {
 
     const username = route.params.username
-    const firstUID = auth().currentUser.uid
+    const loggedInUserUid = auth().currentUser.uid
     const secondUID = route.params.uid
-    const uids = [firstUID, secondUID].sort()
+    const uids = [loggedInUserUid, secondUID].sort()
     const chatRef = "/messages/" + uids[0] + uids[1]
 
     const [messages, setMessages] = useState([]);
     const [updateMessages, setUpdateMessages] = useState(false);
 
-    const [lastRenderedDate, setLastRenderedDate] = useState(null);
-
     const flatListRef = useRef(null);
 
     useEffect(() => {
         setMessages([])
-        const messagesReference = firebase
-            .app()
-            .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
-            .ref(chatRef);
+        const messagesReference = database().ref(chatRef);
 
         messagesReference.on('value', async (snapshot) => {
             snapshot.forEach((childSnapshot) => {
+                if (childSnapshot.val().fromUid !== loggedInUserUid && childSnapshot.val().read !== 'read') {
+                    childSnapshot.ref.update({ read: 'read' })
+                    setUpdateMessages(true)
+                }
                 setMessages((oldMessages) => [...oldMessages, childSnapshot.val()])
             })
         });
 
-        // Clean up the listener when the component unmounts
         return () => {
             setUpdateMessages(false)
             messagesReference.off();
@@ -46,32 +45,27 @@ const OpenChat = ({ route }) => {
             return;
         }
 
-        // Create a reference to the database location where you want to store the new message
         const newMessageRef = firebase
             .app()
             .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
             .ref(chatRef)
             .push();
 
-        // Define the message object to be saved in the database
         const newMessageObj = {
             fromDisplayName: auth().currentUser.displayName,
-            fromUid: firstUID,
+            fromUid: loggedInUserUid,
             message: newMessage,
             read: "sent",
             timestamp: new Date().getTime(),
             to: secondUID
         };
 
-        // Save the new message to the database using the push() method
         newMessageRef
             .set(newMessageObj)
             .catch((error) => {
-                // Handle any errors that occurred while saving the message
                 console.error('Error saving message:', error);
             });
 
-        // Clear the new message input field after sending
         setNewMessage('');
         setUpdateMessages(true);
     };
@@ -107,11 +101,11 @@ const OpenChat = ({ route }) => {
                             <Text style={styles.daySeparator}>
                                 {new Date(item.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                             </Text>}
-                        <View style={item.fromUid === firstUID ? styles.userMessageContainer : styles.botMessageContainer}>
+                        <View style={item.fromUid === loggedInUserUid ? styles.userMessageContainer : styles.botMessageContainer}>
                             <Text style={styles.messageText}>{item.message}</Text>
                             <View style={styles.time_ReadReceipt}>
                                 <Text style={styles.timestampText}>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-                                {item.fromUid === firstUID && (
+                                {item.fromUid === loggedInUserUid && (
                                     <Text style={styles.readReceiptText}>{item.read === 'sent' ? 'Sent' : 'Read'}</Text>
                                 )}
                             </View>

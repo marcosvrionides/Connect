@@ -5,11 +5,14 @@ import * as ImagePicker from "react-native-image-picker";
 import { firebase } from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
+import { useNavigation } from '@react-navigation/native';
 
 export default function NewPostForm() {
     const [text, setText] = useState('');
     const [imageUri, setImageUri] = useState('no file');
     const [fileName, setFileName] = useState('');
+
+    const navigation = useNavigation();
 
     const handleCreatePost = async () => {
         if (text.trim() === '' && imageUri === 'no file') {
@@ -33,7 +36,7 @@ export default function NewPostForm() {
             const newPostRef = firebase
                 .app()
                 .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
-                .ref('/posts')
+                .ref('/posts/' + auth().currentUser.uid)
                 .push();
 
             const postId = newPostRef.key; // Get the generated post ID
@@ -59,6 +62,7 @@ export default function NewPostForm() {
             // Clear the new message input field after sending
             setText('');
             setImageUri('no file');
+            navigation.navigate('Home')
         } catch (error) {
             // Handle any errors that occurred while saving the message or uploading the file
             console.error('Error saving message:', error);

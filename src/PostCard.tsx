@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, Image, TextInput } from 'react-native';
 import Colours from './Colours'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import { firebase } from '@react-native-firebase/database';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import database from '@react-native-firebase/database';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
 
@@ -16,14 +16,10 @@ function PostCard(props): Promise<JSX.Element> {
     const [formattedDate, setFormatedDate] = useState(null)
     const [liked, setLiked] = useState(false);
 
-    const postsRreference = firebase
-        .app()
-        .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
-        .ref('/posts/' + props.postID);
+    const postsRreference = database()
+        .ref('/posts/' + props.userID + '/' + props.postID);
 
-    const likesRreference = firebase
-        .app()
-        .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
+    const likesRreference = database()
         .ref('/likes/' + props.postID + '/' + auth().currentUser.uid);
 
     useEffect(() => {
@@ -39,7 +35,6 @@ function PostCard(props): Promise<JSX.Element> {
             console.log(error.message)
         }
     }, [postData])
-
 
     useEffect(() => {
         postsRreference.on('value', async (snapshot) => {
@@ -75,9 +70,7 @@ function PostCard(props): Promise<JSX.Element> {
 
     useEffect(() => {
         if (postData) {
-            const usersRreference = firebase
-                .app()
-                .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
+            const usersRreference = database()
                 .ref('/users/' + postData.uid);
 
             usersRreference.on('value', async (snapshot) => {
@@ -101,7 +94,7 @@ function PostCard(props): Promise<JSX.Element> {
     }
 
     const handleSetLike = () => {
-        if (auth().currentUser?.isAnonymous) {
+        if (auth().currentUser?.isAnonymous || !auth().currentUser?.emailVerified) {
             setLiked(!liked)
             return;
         }

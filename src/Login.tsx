@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from 'react-native-google-signin';
-import Colours from './Colours'
+import Colours from './Colours';
+import database from '@react-native-firebase/database';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -62,10 +63,36 @@ export default function Login() {
                 // User has registered and signed in successfully
                 const user = userCredential.user;
                 if (user) {
-                    user.updateProfile({
+                    // Set the user profile data in the database under 'users/uid'
+                    const userProfileData = {
                         displayName: displayName,
-                    });
-                    console.log('User registered and logged in successfully!', user);
+                        email: email,
+                        // Add other profile data fields as needed
+                    };
+
+                    user.updateProfile(userProfileData)
+
+                    // Get the reference to the user's profile in the database
+                    const userProfileRef = database().ref(`users/${user.uid}`);
+
+                    // Update the user profile data in the database
+                    userProfileRef.set(userProfileData)
+                        .then(() => {
+                            console.log('User profile data set successfully!', userProfileData);
+                        })
+                        .catch((error) => {
+                            console.log('Error setting user profile data:', error.message);
+                            Alert.alert('Error:', 'Failed to set user profile data.');
+                        });
+                    
+                    //send email verification
+                    user.sendEmailVerification()
+                        .then(() => {
+                            console.log('Email verification sent successfully!');
+                        })
+                        .catch((error) => {
+                            console.log('Error sending email verification:', error.message);
+                        });
                 }
             })
             .catch((error) => {
@@ -120,9 +147,9 @@ export default function Login() {
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
             )}
-            <TouchableOpacity style={styles.googleButton} onPress={onGoogleSignIn}>
+            {/* <TouchableOpacity style={styles.googleButton} onPress={onGoogleSignIn}>
                 <Text style={styles.buttonText}>Login with Google</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <View style={styles.hr} />
             <TouchableOpacity style={styles.continueAsGuestButton} onPress={handleGuestLogin}>
                 <Text style={styles.buttonText}>Continue without an account</Text>
@@ -160,7 +187,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 5,
-        marginBottom: 10,
     },
     googleButton: {
         backgroundColor: '#db4a39',
@@ -195,6 +221,6 @@ const styles = StyleSheet.create({
         borderColor: Colours.primary,
         borderWidth: 1,
         width: '100%',
-        marginBottom: 10,
+        marginVertical: 25,
     },
 });

@@ -7,11 +7,12 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import database from '@react-native-firebase/database';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
+import VideoPlayer from 'react-native-video-controls';
 
 function PostCard(props): Promise<JSX.Element> {
 
     const [postData, setPostData] = useState(null);
-    const [postImageURL, setPostImageURL] = useState(null);
+    const [postFileURL, setPostFileURL] = useState(null);
     const [posterProfilePic, setPosterProfilePic] = useState(null);
     const [formattedDate, setFormatedDate] = useState(null)
     const [liked, setLiked] = useState(false);
@@ -45,7 +46,7 @@ function PostCard(props): Promise<JSX.Element> {
                 // Fetch the image URL from Firebase Storage
                 try {
                     const url = await storage().ref(snapshot.key).getDownloadURL();
-                    setPostImageURL(url);
+                    setPostFileURL(url);
                 } catch (error) {
                     // Handle any errors that occur while fetching the image URL
                     console.error('Error fetching image URL:', error);
@@ -119,6 +120,18 @@ function PostCard(props): Promise<JSX.Element> {
         })
     }
 
+    const isVideoFile = (filename) => {
+        const videoExtensions = ['.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm'];
+        const extension = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+        return videoExtensions.includes(extension);
+    };
+
+    const isImageFile = (filename) => {
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
+        const extension = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+        return imageExtensions.includes(extension);
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.topSection}>
@@ -129,7 +142,27 @@ function PostCard(props): Promise<JSX.Element> {
                 </View>
             </View>
             <Text style={styles.postText}>{postData.content}</Text>
-            {postData.file !== 'no file' && <Image style={styles.mediaPreview} source={{ uri: postImageURL }} resizeMode="contain" />}
+            {postData.file !== 'no file' && (
+                isImageFile(postData.file) ? (
+                    <Image
+                        style={styles.mediaPreview}
+                        source={{ uri: postFileURL }}
+                        resizeMode="contain"
+                    />
+                ) : (
+                    <VideoPlayer
+                        style={styles.mediaPreview}
+                        source={{ uri: postFileURL }}
+                        resizeMode="contain"
+                        toggleResizeModeOnFullscreen={false}
+                        scrubbing={1}
+                        disableFullscreen
+                        disableVolume
+                        disableBack
+                    />
+                )
+            )}
+
             <View style={styles.bottomSection}>
                 <Text style={styles.likeCount}>{postData.likes} {postData.likes > 1 ? 'Likes' : 'Like'}</Text>
                 {liked ?

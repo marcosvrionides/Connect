@@ -69,15 +69,11 @@ export default function NewPostForm() {
         }
     }
 
-    const handleImageSelection = () => {
+    const handleFileSelection = () => {
         // Launch the image picker or camera using launchImageLibrary from react-native-image-picker
         ImagePicker.launchImageLibrary(
             {
-                title: 'Select Image',
-                storageOptions: {
-                    skipBackup: true,
-                    path: 'images',
-                },
+                mediaType: 'mixed',
             },
             (response) => {
                 if (response.didCancel) {
@@ -107,7 +103,7 @@ export default function NewPostForm() {
             {imageUri !== 'no file' && (
                 <Image style={styles.image} source={{ uri: imageUri }} resizeMode="cover" />
             )}
-            <TouchableOpacity style={styles.selectImageBtn} onPress={handleImageSelection}>
+            <TouchableOpacity style={styles.selectImageBtn} onPress={handleFileSelection}>
                 <Text style={styles.selectImageText}>Select Image or Video</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.createPostBtn} onPress={handleCreatePost}>

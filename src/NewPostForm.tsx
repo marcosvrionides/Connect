@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Alert } from 'react-native';
 import React, { useState } from 'react';
 import Colours from './Colours';
-import * as ImagePicker from "react-native-image-picker";
+import * as MediaPicker from "react-native-image-picker";
 import { firebase } from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
@@ -71,7 +71,7 @@ export default function NewPostForm() {
 
     const handleFileSelection = () => {
         // Launch the image picker or camera using launchImageLibrary from react-native-image-picker
-        ImagePicker.launchImageLibrary(
+        MediaPicker.launchImageLibrary(
             {
                 mediaType: 'mixed',
             },
@@ -79,7 +79,7 @@ export default function NewPostForm() {
                 if (response.didCancel) {
                     console.log('User cancelled image picker');
                 } else if (response.error) {
-                    console.log('ImagePicker Error: ', response.error);
+                    console.log('MediaPicker Error: ', response.error);
                 } else if (response.customButton) {
                     console.log('User tapped custom button: ', response.customButton);
                 } else {

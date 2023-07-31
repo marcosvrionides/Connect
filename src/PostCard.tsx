@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
 import Colours from './Colours'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
@@ -8,8 +8,11 @@ import database from '@react-native-firebase/database';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
 import VideoPlayer from 'react-native-video-controls';
+import { useNavigation } from '@react-navigation/native';
 
 function PostCard(props): Promise<JSX.Element> {
+
+    const [onProfile, setOnProfile] = useState(props.onProfile)
 
     const [postData, setPostData] = useState(null);
     const [postFileURL, setPostFileURL] = useState(null);
@@ -62,10 +65,11 @@ function PostCard(props): Promise<JSX.Element> {
     }, [props]);
 
     useEffect(() => {
+
         likesRreference.on('value', (snapshot) => {
-            if (snapshot.val()) (
-                setLiked(snapshot.val().like)
-            )
+            if (snapshot.val() && snapshot.val().like === true) {
+                setLiked(true)
+            }
         })
 
         return () => {
@@ -82,7 +86,10 @@ function PostCard(props): Promise<JSX.Element> {
                 const data = snapshot.val();
                 const profilePicURL = data.profilePicture;
                 if (snapshot.key === postData.uid) {
-                    setPosterProfilePic(profilePicURL === "" ? 'https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b' : profilePicURL);
+                    setPosterProfilePic(
+                        profilePicURL === undefined ? 'https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b'
+                            : profilePicURL
+                    );
                 }
             });
 
@@ -108,23 +115,24 @@ function PostCard(props): Promise<JSX.Element> {
                 // If the post exists, update the likes count
                 if (liked) {
                     postData.likes--;
+                    likesRreference.remove()
+                        .then(() => {
+                            console.log("Post reference deleted successfully!");
+                        })
+                        .catch((error) => {
+                            console.error("Error deleting post reference:", error);
+                        });
                 } else {
                     postData.likes++;
+                    likesRreference.set({
+                        like: !liked
+                    })
                 }
                 setLiked(!liked);
             }
             return postData;
         });
-        likesRreference.set({
-            like: !liked
-        })
     }
-
-    const isVideoFile = (filename) => {
-        const videoExtensions = ['.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm'];
-        const extension = filename.substring(filename.lastIndexOf('.')).toLowerCase();
-        return videoExtensions.includes(extension);
-    };
 
     const isImageFile = (filename) => {
         const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
@@ -132,15 +140,23 @@ function PostCard(props): Promise<JSX.Element> {
         return imageExtensions.includes(extension);
     };
 
+    const navigation = useNavigation();
+    const handleNavigateProfile = () => {
+        navigation.navigate('Profile', {uid: postData.uid});
+        console.log(postData)
+    }
+
     return (
         <View style={styles.container}>
-            <View style={styles.topSection}>
-                <Image style={styles.profilePic} source={{ uri: posterProfilePic }} />
+            {!onProfile && <View style={styles.topSection}>
+                <TouchableOpacity onPress={handleNavigateProfile}>
+                    <Image style={styles.profilePic} source={{ uri: posterProfilePic }} />
+                </TouchableOpacity>
                 <View style={styles.nameDate}>
-                    <Text style={styles.posterName}>{postData.displayName}</Text>
+                    <Text style={styles.posterName} onPress={handleNavigateProfile}>{postData.displayName}</Text>
                     {formattedDate !== null && <Text style={styles.postDate}>{formattedDate}</Text>}
                 </View>
-            </View>
+            </View>}
             <Text style={styles.postText}>{postData.content}</Text>
             {postData.file !== 'no file' && (
                 isImageFile(postData.file) ? (
@@ -163,8 +179,8 @@ function PostCard(props): Promise<JSX.Element> {
                 )
             )}
 
-            <View style={styles.bottomSection}>
-                <Text style={styles.likeCount}>{postData.likes} {postData.likes > 1 ? 'Likes' : 'Like'}</Text>
+            {!onProfile && <View style={styles.bottomSection}>
+                <Text style={styles.likeCount}>{postData.likes} {postData.likes === 1 ? 'Like' : 'Likes'}</Text>
                 {liked ?
                     <FontAwesome name='heart' size={25} color={Colours.primary} onPress={handleSetLike} />
                     :
@@ -172,7 +188,7 @@ function PostCard(props): Promise<JSX.Element> {
                 }
                 <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} />
                 <Feather name='send' size={25} color={Colours.primary} />
-            </View>
+            </View>}
         </View>
     );
 }

@@ -5,6 +5,7 @@ import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import Colours from './Colours'
 import { TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Comments() {
     const route = useRoute();
@@ -19,12 +20,14 @@ export default function Comments() {
         const commentsRef = database().ref('/comments/' + postID);
         commentsRef.on('value', (snapshot) => {
             snapshot.forEach((user) => {
+                const uid = user.key;
                 user.forEach((comment) => {
-                    setComments((comments) => [...comments, comment.val()])
-                })
+                    const commentData = comment.val();
+                    commentData.uid = uid;
+                    setComments((comments) => [...comments, commentData]);
+                });
             })
         });
-
         return () => {
             commentsRef.off('value');
         }
@@ -45,13 +48,25 @@ export default function Comments() {
         setUpdateComments(!updateComments);
     };
 
+    const navigation = useNavigation();
+    const handleNavigateProfile = (uid) => {
+        navigation.navigate('Profile', { uid: uid });
+    }
+
+    comments.sort((a, b) => a.timestamp - b.timestamp);
+
     return (
         <View style={styles.container}>
             <FlatList
                 data={comments}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <Text style={styles.commentText}>{item.displayName + ': ' + item.text}</Text>
+                    <View style={styles.commentContainer}>
+                        <Text style={styles.commentText} onPress={() => handleNavigateProfile(item.uid)}>
+                            {item.displayName + ': '}
+                        </Text>
+                        <Text style={styles.commentText}>{item.text}</Text>
+                    </View>
                 )}
             />
             <TextInput
@@ -62,9 +77,7 @@ export default function Comments() {
                 onChangeText={(text) => setNewComment(text)}
             />
             <TouchableOpacity style={styles.submitButton} onPress={handleCommentSubmit}>
-                <Text style={styles.submitButtonText}>
-                    Submit
-                </Text>
+                <Text style={styles.submitButtonText}>Submit</Text>
             </TouchableOpacity>
         </View>
     );
@@ -75,6 +88,10 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
         backgroundColor: Colours.background
+    },
+    commentContainer: {
+        display: 'flex',
+        flexDirection: 'row'
     },
     commentText: {
         fontSize: 16,

@@ -143,7 +143,10 @@ function PostCard(props): Promise<JSX.Element> {
     const navigation = useNavigation();
     const handleNavigateProfile = () => {
         navigation.navigate('Profile', {uid: postData.uid});
-        console.log(postData)
+    }
+
+    const handleNavigateComments = () => {
+        navigation.navigate('Comments', {postID: props.postID})
     }
 
     return (
@@ -186,7 +189,7 @@ function PostCard(props): Promise<JSX.Element> {
                     :
                     <FontAwesome name='heart-o' size={25} color={Colours.primary} onPress={handleSetLike} />
                 }
-                <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} />
+                <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} onPress={handleNavigateComments} />
                 <Feather name='send' size={25} color={Colours.primary} />
             </View>}
         </View>

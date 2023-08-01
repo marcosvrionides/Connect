@@ -10,6 +10,7 @@ import Login from './src/Login';
 import Settings from './src/Settings';
 import NewPostForm from './src/NewPostForm';
 import Profile from './src/Profile';
+import Comments from './src/Comments';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +48,7 @@ function App(): JSX.Element {
         <Stack.Screen name='Settings' component={Settings} options={{ headerShown: false }} />
         <Stack.Screen name='NewPostForm' component={NewPostForm} options={{ headerShown: false }} />
         <Stack.Screen name='Profile' component={Profile} options={{ headerShown: false }} />
+        <Stack.Screen name='Comments' component={Comments} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

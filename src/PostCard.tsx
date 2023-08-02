@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 
 function PostCard(props): Promise<JSX.Element> {
 
-    const [onProfile, setOnProfile] = useState(props.onProfile)
+    const onProfile = props.onProfile
 
     const [postData, setPostData] = useState(null);
     const [postFileURL, setPostFileURL] = useState(null);
@@ -142,11 +142,11 @@ function PostCard(props): Promise<JSX.Element> {
 
     const navigation = useNavigation();
     const handleNavigateProfile = () => {
-        navigation.navigate('Profile', {uid: postData.uid});
+        navigation.navigate('Profile', { uid: postData.uid });
     }
 
     const handleNavigateComments = () => {
-        navigation.navigate('Comments', {postID: props.postID})
+        navigation.navigate('Comments', { postID: props.postID })
     }
 
     return (
@@ -183,14 +183,15 @@ function PostCard(props): Promise<JSX.Element> {
             )}
 
             {!onProfile && <View style={styles.bottomSection}>
-                <Text style={styles.likeCount}>{postData.likes} {postData.likes === 1 ? 'Like' : 'Likes'}</Text>
-                {liked ?
-                    <FontAwesome name='heart' size={25} color={Colours.primary} onPress={handleSetLike} />
-                    :
-                    <FontAwesome name='heart-o' size={25} color={Colours.primary} onPress={handleSetLike} />
-                }
+                <View style={styles.likeContainer}>
+                    {liked ?
+                        <FontAwesome name='heart' size={25} color={Colours.primary} onPress={handleSetLike} />
+                        :
+                        <FontAwesome name='heart-o' size={25} color={Colours.primary} onPress={handleSetLike} />
+                    }
+                    <Text style={styles.likeCount}>{postData.likes} {postData.likes === 1 ? 'Like' : 'Likes'}</Text>
+                </View>
                 <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} onPress={handleNavigateComments} />
-                <Feather name='send' size={25} color={Colours.primary} />
             </View>}
         </View>
     );
@@ -218,6 +219,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 10,
         justifyContent: 'space-between',
+        paddingHorizontal: 20,
+    },
+    likeContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 10
     },
     nameDate: {
         display: 'flex',

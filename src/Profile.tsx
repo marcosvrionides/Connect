@@ -122,11 +122,13 @@ export default function Profile() {
         setUserPosts([])
         userPostsRef.on('value', (snapshot) => {
             snapshot.forEach((childSnapshot) => {
-                setUserPosts((userPosts) => [...userPosts, childSnapshot.key])
+                setUserPosts((userPosts) => [...userPosts, {postID: childSnapshot.key, timestamp: childSnapshot.val().timestamp}])
             })
         })
     }, [])
 
+    userPosts.sort((a, b) => b.timestamp - a.timestamp)
+    
     return (
         <ScrollView style={styles.container}>
             {userProfile ? (
@@ -184,7 +186,7 @@ export default function Profile() {
                     </Text>
                     <FlatList
                         data={userPosts}
-                        renderItem={({ item }) => <PostCard userID={uid} postID={item} onProfile={true} />}
+                        renderItem={({ item }) => <PostCard userID={uid} postID={item.postID} onProfile={true} />}
                         keyExtractor={(item) => item}
                     />
 

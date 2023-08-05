@@ -1,4 +1,8 @@
 {
   "name": "StudentsThoughtsApp",
-  "displayName": "StudentsThoughtsApp"
+  "displayName": "StudentsThoughtsApp",
+
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-7497957931538271~3942256302",
+  }
 }

@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, StatusBar, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList } from 'react-native';
 import Colours from './Colours';
 import ActionsButton from './ActionsButton';
 import PostCard from './PostCard';

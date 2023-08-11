@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
 import Colours from './Colours'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import database from '@react-native-firebase/database';
 import storage from '@react-native-firebase/storage';
@@ -16,7 +15,7 @@ function PostCard(props): Promise<JSX.Element> {
 
     const [postData, setPostData] = useState(null);
     const [postFileURL, setPostFileURL] = useState(null);
-    const [posterProfilePic, setPosterProfilePic] = useState(null);
+    const [posterProfilePic, setPosterProfilePic] = useState('https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b');
     const [formattedDate, setFormatedDate] = useState(null)
     const [liked, setLiked] = useState(false);
 
@@ -86,10 +85,7 @@ function PostCard(props): Promise<JSX.Element> {
                 const data = snapshot.val();
                 const profilePicURL = data.profilePicture;
                 if (snapshot.key === postData.uid) {
-                    setPosterProfilePic(
-                        profilePicURL === undefined ? 'https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b'
-                            : profilePicURL
-                    );
+                    setPosterProfilePic(profilePicURL);
                 }
             });
 
@@ -142,7 +138,9 @@ function PostCard(props): Promise<JSX.Element> {
 
     const navigation = useNavigation();
     const handleNavigateProfile = () => {
-        navigation.navigate('Profile', { uid: postData.uid });
+        if (postData.displayName !== 'Anonymous') {
+            navigation.navigate('Profile', { uid: postData.uid });
+        }
     }
 
     const handleNavigateComments = () => {

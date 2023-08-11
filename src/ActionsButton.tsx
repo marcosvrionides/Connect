@@ -21,14 +21,8 @@ function ActionsButton(): JSX.Element {
     const navigation = useNavigation();
 
     const handleOpenMessages = () => {
-        // if (auth().currentUser?.isAnonymous) {
-        //     Alert.alert('Please log in to access messages')
-        // } else if (!auth().currentUser?.emailVerified) {
-        //     Alert.alert('Please check your emails to verify your account to access messages.')
-        // } else {
-            setIsTapped(false);
-            navigation.navigate('Messages');
-        // }
+        setIsTapped(false);
+        navigation.navigate('Messages');
     };
 
     const handleOpenSettings = () => {
@@ -37,14 +31,8 @@ function ActionsButton(): JSX.Element {
     }
 
     const handleNewPost = () => {
-        if (auth().currentUser?.isAnonymous) {
-            Alert.alert('Please log in to create a post')
-        } else if (!auth().currentUser?.emailVerified) {
-            Alert.alert('Please check your emails to verify your account to create posts.')
-        } else {
-            setIsTapped(false);
-            navigation.navigate('NewPostForm')
-        }
+        setIsTapped(false);
+        navigation.navigate('NewPostForm')
     }
 
     useEffect(() => {

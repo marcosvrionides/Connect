@@ -24,7 +24,7 @@ export default function NewPostForm() {
             const newPostObj = {
                 community: '',
                 content: text,
-                displayName: auth().currentUser?.displayName,
+                displayName: auth().currentUser?.displayName ? auth().currentUser?.displayName : 'Anonymous',
                 email: auth().currentUser?.email,
                 file: imageUri,
                 likes: 0,

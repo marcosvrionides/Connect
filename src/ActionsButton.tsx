@@ -18,21 +18,17 @@ function ActionsButton(): JSX.Element {
         setIsTapped(false)
     }
 
-    const HorizontalLine = () => {
-        return <View style={styles.hr} />;
-    };
-
     const navigation = useNavigation();
 
     const handleOpenMessages = () => {
-        if (auth().currentUser?.isAnonymous) {
-            Alert.alert('Please log in to access messages')
-        } else if (!auth().currentUser?.emailVerified) {
-            Alert.alert('Please check your emails to verify your account to access messages.')
-        } else {
+        // if (auth().currentUser?.isAnonymous) {
+        //     Alert.alert('Please log in to access messages')
+        // } else if (!auth().currentUser?.emailVerified) {
+        //     Alert.alert('Please check your emails to verify your account to access messages.')
+        // } else {
             setIsTapped(false);
             navigation.navigate('Messages');
-        }
+        // }
     };
 
     const handleOpenSettings = () => {

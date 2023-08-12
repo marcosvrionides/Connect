@@ -16,6 +16,8 @@ const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
 
+  const [showAds, setShowAds] = useState(true);
+
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
@@ -39,13 +41,19 @@ function App(): JSX.Element {
     );
   }
 
+  const onAdFailedToLoad = (error) => {
+    console.log('error loading ad', error.message);
+    setShowAds(false);
+  }
+
   return (
     <>
-      <GAMBannerAd
-        unitId={'ca-app-pub-7497957931538271/8908530578'}
-        sizes={[BannerAdSize.FULL_BANNER]}
-        onAdFailedToLoad={(error) => console.log('error loading ad', error.message)}
-      />
+      {showAds &&
+        <GAMBannerAd
+          unitId={'ca-app-pub-7497957931538271/8908530578'}
+          sizes={[BannerAdSize.FULL_BANNER]}
+          onAdFailedToLoad={onAdFailedToLoad}
+        />}
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name='Home' component={Homescreen} options={{ headerShown: false }} />

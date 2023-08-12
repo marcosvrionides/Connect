@@ -27,7 +27,6 @@ export default function NewPostForm() {
                 displayName: auth().currentUser?.displayName ? auth().currentUser?.displayName : 'Anonymous',
                 email: auth().currentUser?.email,
                 file: imageUri,
-                likes: 0,
                 timestamp: new Date().getTime(),
                 uid: auth().currentUser?.uid
             };

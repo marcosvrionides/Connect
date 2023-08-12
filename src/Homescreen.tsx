@@ -1,4 +1,4 @@
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList, PermissionsAndroid } from 'react-native';
 import Colours from './Colours';
 import ActionsButton from './ActionsButton';
 import PostCard from './PostCard';
@@ -6,6 +6,26 @@ import database from '@react-native-firebase/database';
 import { useEffect, useState } from 'react';
 
 function Homescreen(): JSX.Element {
+
+    // const requestSendNotificationPermission = async () => {
+    //     try {
+    //         const granted = await PermissionsAndroid.request(
+    //             PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    //             {
+    //                 title: 'TEST',
+    //                 message: 'permissions.locationPermissionMessage',
+    //                 buttonNegative: 'Cancel',
+    //                 buttonPositive: 'OK',
+    //             }
+    //         )
+    //     } catch (err) {
+    //         console.log(err.message)
+    //     }
+    // }
+
+    // useEffect(() => {
+    //     requestSendNotificationPermission();
+    // }, [])
 
     const [postIds_timestamps, setPostIds_timestamps] = useState([])
 
@@ -42,7 +62,7 @@ function Homescreen(): JSX.Element {
                 style={styles.posts}
                 data={postIds_timestamps}
                 renderItem={({ item }) => <PostCard key={item.ID} userID={item.userID} postID={item.postID} />}
-                keyExtractor={(item) => item.ID}
+                keyExtractor={(item) => item.postID}
             />
             <ActionsButton />
         </View>
@@ -59,6 +79,11 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
     },
+    requestSendNotificationPermissionButton: {
+        width: '100%',
+        height: 50,
+        backgroundColor: 'red'
+    }
 });
 
 export default Homescreen;

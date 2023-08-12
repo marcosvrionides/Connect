@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, TouchableWithoutFeedback, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import Colours from './Colours';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
 
 function ActionsButton(): JSX.Element {
     const [isTapped, setIsTapped] = useState(false);
@@ -37,7 +36,7 @@ function ActionsButton(): JSX.Element {
 
     useEffect(() => {
         if (isTapped) {
-            setContainerHeight(290);
+            setContainerHeight(260);
         } else {
             setContainerHeight(80);
         }
@@ -49,8 +48,7 @@ function ActionsButton(): JSX.Element {
             {isTapped && (
                 <View style={styles.actions}>
                     <MaterialCommunityIcons name={'message'} size={35} color={Colours.text} onPress={handleOpenMessages} />
-                    <FontAwesome name={'search'} size={35} color={Colours.text} />
-                    <FontAwesome name={'pencil'} size={35} color={Colours.text} onPress={handleNewPost} />
+                    <FontAwesome name={'plus'} size={35} color={Colours.text} onPress={handleNewPost} />
                     <FontAwesome name={'gear'} size={35} color={Colours.text} onPress={handleOpenSettings} />
                     <View style={styles.hr} />
                     <FontAwesome name={'close'} size={35} color={Colours.text} onPress={handleCloseActions} />
@@ -66,7 +64,6 @@ const styles = StyleSheet.create({
         bottom: 10,
         right: 10,
         width: 80,
-        height: 80,
         borderWidth: 5,
         borderColor: 'white',
         borderRadius: 50

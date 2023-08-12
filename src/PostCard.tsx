@@ -11,19 +11,19 @@ import { useNavigation } from '@react-navigation/native';
 
 function PostCard(props): Promise<JSX.Element> {
 
-    const onProfile = props.onProfile
+    const onProfile = props.onProfile;
+
+    const loggedInUser = auth().currentUser;
 
     const [postData, setPostData] = useState(null);
     const [postFileURL, setPostFileURL] = useState(null);
     const [posterProfilePic, setPosterProfilePic] = useState('https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b');
-    const [formattedDate, setFormatedDate] = useState(null)
+    const [formattedDate, setFormatedDate] = useState(null);
     const [liked, setLiked] = useState(false);
+    const [numberOfLikes, setNumberOfLikes] = useState(0);
 
-    const postsRreference = database()
-        .ref('/posts/' + props.userID + '/' + props.postID);
-
-    const likesRreference = database()
-        .ref('/likes/' + props.postID + '/' + auth().currentUser.uid);
+    const postsRreference = database().ref('/posts/' + props.userID + '/' + props.postID);
+    const likeReference = database().ref('/likes/' + props.postID + '/' + loggedInUser.uid);
 
     useEffect(() => {
         try {
@@ -64,15 +64,18 @@ function PostCard(props): Promise<JSX.Element> {
     }, [props]);
 
     useEffect(() => {
-
-        likesRreference.on('value', (snapshot) => {
-            if (snapshot.val() && snapshot.val().like === true) {
-                setLiked(true)
+        const likesReference = database().ref('likes/' + props.postID)
+        likesReference.on('value', (snapshot) => {
+            const likesCount = snapshot.numChildren();
+            setNumberOfLikes(likesCount);
+            if (snapshot.hasChild(loggedInUser.uid)) {
+                setLiked(true);
+            } else {
+                setLiked(false);
             }
         })
-
         return () => {
-            likesRreference.off();
+            likesReference.off();
         };
     }, [postData])
 
@@ -101,33 +104,15 @@ function PostCard(props): Promise<JSX.Element> {
         return null;
     }
 
+
     const handleSetLike = () => {
-        if (auth().currentUser?.isAnonymous || !auth().currentUser?.emailVerified) {
-            setLiked(!liked)
-            return;
+        if (liked) {
+            likeReference.remove()
+        } else {
+            likeReference.set({
+                like: true
+            })
         }
-        postsRreference.transaction((postData) => {
-            if (postData) {
-                // If the post exists, update the likes count
-                if (liked) {
-                    postData.likes--;
-                    likesRreference.remove()
-                        .then(() => {
-                            console.log("Post reference deleted successfully!");
-                        })
-                        .catch((error) => {
-                            console.error("Error deleting post reference:", error);
-                        });
-                } else {
-                    postData.likes++;
-                    likesRreference.set({
-                        like: !liked
-                    })
-                }
-                setLiked(!liked);
-            }
-            return postData;
-        });
     }
 
     const isImageFile = (filename) => {
@@ -187,7 +172,7 @@ function PostCard(props): Promise<JSX.Element> {
                         :
                         <FontAwesome name='heart-o' size={25} color={Colours.primary} onPress={handleSetLike} />
                     }
-                    <Text style={styles.likeCount}>{postData.likes} {postData.likes === 1 ? 'Like' : 'Likes'}</Text>
+                    <Text style={styles.likeCount}>{numberOfLikes} {numberOfLikes === 1 ? 'Like' : 'Likes'}</Text>
                 </View>
                 <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} onPress={handleNavigateComments} />
             </View>}

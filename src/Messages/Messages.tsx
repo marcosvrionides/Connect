@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, View, FlatList, TextInput, Image } from 'react-native';
+import { Text, StyleSheet, View, FlatList, TextInput, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import Colours from '../Colours'
 import MessageCard from './MessageCard';
 import auth from '@react-native-firebase/auth';
@@ -63,7 +63,7 @@ function Messages(): JSX.Element {
                 ListHeaderComponent={<Text style={styles.header}>Messages</Text>}
                 data={chats}
                 renderItem={({ item }) =>
-                    <View style={{marginBottom: 10}}>
+                    <View style={{ marginBottom: 10 }}>
                         <MessageCard key={item} secondUserID={item} />
                     </View>
                 }

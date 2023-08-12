@@ -10,7 +10,7 @@ import Settings from './src/Settings';
 import NewPostForm from './src/NewPostForm';
 import Profile from './src/Profile';
 import Comments from './src/Comments';
-import { GAMBannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
+import { GAMBannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,7 +44,7 @@ function App(): JSX.Element {
       <GAMBannerAd
         unitId={'ca-app-pub-7497957931538271/8908530578'}
         sizes={[BannerAdSize.FULL_BANNER]}
-        onAdFailedToLoad={(error)=>console.log('error loading ad', error.message)}
+        onAdFailedToLoad={(error) => console.log('error loading ad', error.message)}
       />
       <NavigationContainer>
         <Stack.Navigator>

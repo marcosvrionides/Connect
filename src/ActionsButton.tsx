@@ -4,16 +4,22 @@ import Colours from './Colours';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
 
 function ActionsButton(): JSX.Element {
     const [isTapped, setIsTapped] = useState(false);
-    const [containerHeight, setContainerHeight] = useState(80);
+    const height = useSharedValue(80)
 
     const handleTap = () => {
-        setIsTapped(!isTapped);
+        height.value = withSpring(260)
+        setTimeout(() => {
+            setIsTapped(!isTapped);
+        }, 250)
+        
     };
 
     const handleCloseActions = () => {
+        height.value = withSpring(80)
         setIsTapped(false)
     }
 
@@ -34,16 +40,9 @@ function ActionsButton(): JSX.Element {
         navigation.navigate('NewPostForm')
     }
 
-    useEffect(() => {
-        if (isTapped) {
-            setContainerHeight(260);
-        } else {
-            setContainerHeight(80);
-        }
-    }, [isTapped])
-
     return (
-        <View style={[styles.container, { height: containerHeight }]}>
+        <Animated.View
+            style={[styles.container, { height }]}>
             <TouchableOpacity onPress={handleTap} style={styles.button} />
             {isTapped && (
                 <View style={styles.actions}>
@@ -54,7 +53,7 @@ function ActionsButton(): JSX.Element {
                     <FontAwesome name={'close'} size={35} color={Colours.text} onPress={handleCloseActions} />
                 </View>
             )}
-        </View>
+        </Animated.View>
     )
 }
 
@@ -62,8 +61,9 @@ const styles = StyleSheet.create({
     container: {
         position: 'absolute',
         bottom: 10,
-        right: 10,
+        left: 10,
         width: 80,
+        height: 80,
         borderWidth: 5,
         borderColor: 'white',
         borderRadius: 50

@@ -165,17 +165,19 @@ function PostCard(props): Promise<JSX.Element> {
                 )
             )}
 
-            {!onProfile && <View style={styles.bottomSection}>
-                <View style={styles.likeContainer}>
-                    {liked ?
-                        <FontAwesome name='heart' size={25} color={Colours.primary} onPress={handleSetLike} />
-                        :
-                        <FontAwesome name='heart-o' size={25} color={Colours.primary} onPress={handleSetLike} />
-                    }
-                    <Text style={styles.likeCount}>{numberOfLikes} {numberOfLikes === 1 ? 'Like' : 'Likes'}</Text>
+            {!onProfile &&
+                <View style={styles.bottomSection}>
+                    <View style={styles.likeContainer}>
+                        <Text style={styles.likeCount}>{numberOfLikes} {numberOfLikes === 1 ? 'Like' : 'Likes'}</Text>
+                        {liked ?
+                            <FontAwesome name='heart' size={25} color={Colours.primary} onPress={handleSetLike} />
+                            :
+                            <FontAwesome name='heart-o' size={25} color={Colours.primary} onPress={handleSetLike} />
+                        }
+                    <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} onPress={handleNavigateComments} />
+                    </View>
                 </View>
-                <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} onPress={handleNavigateComments} />
-            </View>}
+            }
         </View>
     );
 }
@@ -200,8 +202,8 @@ const styles = StyleSheet.create({
     bottomSection: {
         display: 'flex',
         flexDirection: 'row',
+        justifyContent: 'flex-end',
         gap: 10,
-        justifyContent: 'space-between',
         paddingHorizontal: 20,
     },
     likeContainer: {

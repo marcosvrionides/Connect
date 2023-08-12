@@ -80,8 +80,8 @@ android {
         applicationId "com.studentsthoughtsapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 9
-        versionName "1.8"
+        versionCode 11
+        versionName "2"
     }
     signingConfigs {
         debug {

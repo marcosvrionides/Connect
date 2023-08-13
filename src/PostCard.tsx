@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Button } from 'react-native';
 import Colours from './Colours'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -20,7 +20,9 @@ function PostCard(props): Promise<JSX.Element> {
     const [posterProfilePic, setPosterProfilePic] = useState('https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b');
     const [formattedDate, setFormatedDate] = useState(null);
     const [liked, setLiked] = useState(false);
+
     const [numberOfLikes, setNumberOfLikes] = useState(0);
+    const [numberOfComments, setNumberOfComments] = useState(0);
 
     const postsRreference = database().ref('/posts/' + props.userID + '/' + props.postID);
     const likeReference = database().ref('/likes/' + props.postID + '/' + loggedInUser.uid);
@@ -76,6 +78,24 @@ function PostCard(props): Promise<JSX.Element> {
         })
         return () => {
             likesReference.off();
+        };
+    }, [postData])
+
+    useEffect(() => {
+        const commentsReference = database().ref('comments/' + props.postID);
+
+        const handleSnapshot = (snapshot) => {
+            let commentsCount = 0;
+            snapshot.forEach((childSnapshot) => {
+                commentsCount += childSnapshot.numChildren();
+            });
+            setNumberOfComments(commentsCount);
+        };
+
+        commentsReference.on('value', handleSnapshot);
+
+        return () => {
+            commentsReference.off('value', handleSnapshot);
         };
     }, [postData])
 
@@ -174,7 +194,10 @@ function PostCard(props): Promise<JSX.Element> {
                             :
                             <FontAwesome name='heart-o' size={25} color={Colours.primary} onPress={handleSetLike} />
                         }
-                    <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} onPress={handleNavigateComments} />
+                    </View>
+                    <View style={styles.likeContainer}>
+                        <Text style={styles.likeCount}>{numberOfComments} {numberOfComments === 1 ? 'Comment' : 'Comments'}</Text>
+                        <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} onPress={handleNavigateComments} />
                     </View>
                 </View>
             }
@@ -236,9 +259,7 @@ const styles = StyleSheet.create({
     },
     mediaPreview: {
         width: '100%',
-        aspectRatio: 1,
-        minHeight: 100,
-        maxHeight: 500,
+        aspectRatio: 3 / 4,
         borderWidth: 2,
         borderColor: Colours.primary,
         borderRadius: 25,

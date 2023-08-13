@@ -1,4 +1,4 @@
-import { StyleSheet, View, FlatList, PermissionsAndroid } from 'react-native';
+import { StyleSheet, View, FlatList, PermissionsAndroid, Button } from 'react-native';
 import Colours from './Colours';
 import ActionsButton from './ActionsButton';
 import PostCard from './PostCard';

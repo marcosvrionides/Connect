@@ -1,4 +1,4 @@
-import { FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ToastAndroid } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import auth from '@react-native-firebase/auth';
 import { useRoute } from '@react-navigation/native';
@@ -79,6 +79,7 @@ export default function Profile() {
                 userProfileRef.update({
                     about: newAbout,
                 })
+                ToastAndroid.show('Edits saved', ToastAndroid.SHORT)
             }
 
         }
@@ -114,6 +115,7 @@ export default function Profile() {
     const discardEdits = () => {
         setNewProfilePiceUri('')
         setEditMode(!editMode);
+        ToastAndroid.show('Edits discarded', ToastAndroid.SHORT)
     }
 
     const userPostsRef = database().ref('/posts/' + uid)
@@ -122,18 +124,18 @@ export default function Profile() {
         setUserPosts([])
         userPostsRef.on('value', (snapshot) => {
             snapshot.forEach((childSnapshot) => {
-                setUserPosts((userPosts) => [...userPosts, {postID: childSnapshot.key, timestamp: childSnapshot.val().timestamp}])
+                setUserPosts((userPosts) => [...userPosts, { postID: childSnapshot.key, timestamp: childSnapshot.val().timestamp }])
             })
         })
     }, [])
 
     userPosts.sort((a, b) => b.timestamp - a.timestamp)
-    
+
     return (
         <ScrollView style={styles.container}>
             {userProfile ? (
                 <View>
-                    <Text style={styles.displayName}>{userProfile.displayName}</Text>
+
                     {loggedInUser.uid === uid &&
                         <View style={{ position: 'absolute', top: 0, right: 0, display: 'flex', flexDirection: 'row', gap: 10 }}>
                             {editMode &&
@@ -145,22 +147,25 @@ export default function Profile() {
                             </TouchableOpacity>
                         </View>
                     }
-                    <View style={styles.profilePicContainer}>
-                        <Image
-                            style={styles.profilePic}
-                            source={{
-                                uri: userProfile.profilePicture === undefined ? 'https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b'
-                                    : userProfile.profilePicture
-                            }}
-                        />
-                        {editMode &&
-                            <FontAwesome
-                                name={'pencil'}
-                                size={35}
-                                style={styles.editProfilePicButton}
-                                onPress={handleChangeProfilePic}
+                    <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={styles.profilePicContainer}>
+                            <Image
+                                style={styles.profilePic}
+                                source={{
+                                    uri: userProfile.profilePicture === undefined ? 'https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b'
+                                        : userProfile.profilePicture
+                                }}
                             />
-                        }
+                            {editMode &&
+                                <FontAwesome
+                                    name={'pencil'}
+                                    size={35}
+                                    style={styles.editProfilePicButton}
+                                    onPress={handleChangeProfilePic}
+                                />
+                            }
+                        </View>
+                        <Text style={styles.displayName}>{userProfile.displayName}</Text>
                     </View>
                     <View style={styles.aboutContainer}>
                         {editMode ?

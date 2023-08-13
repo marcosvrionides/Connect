@@ -26,17 +26,17 @@ function ActionsButton(): JSX.Element {
     const navigation = useNavigation();
 
     const handleOpenMessages = () => {
-        setIsTapped(false);
+        handleCloseActions();
         navigation.navigate('Messages');
     };
 
     const handleOpenSettings = () => {
-        setIsTapped(false);
+        handleCloseActions();
         navigation.navigate('Settings')
     }
 
     const handleNewPost = () => {
-        setIsTapped(false);
+        handleCloseActions();
         navigation.navigate('NewPostForm')
     }
 

@@ -19,10 +19,10 @@ const OpenChat = ({ route }) => {
     const flatListRef = useRef(null);
 
     useEffect(() => {
-        setMessages([])
         const messagesReference = database().ref(chatRef);
 
         messagesReference.on('value', async (snapshot) => {
+            setMessages([])
             snapshot.forEach((childSnapshot) => {
                 if (childSnapshot.val().fromUid !== loggedInUserUid && childSnapshot.val().read !== 'read') {
                     childSnapshot.ref.update({ read: 'read' })
@@ -45,11 +45,7 @@ const OpenChat = ({ route }) => {
             return;
         }
 
-        const newMessageRef = firebase
-            .app()
-            .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
-            .ref(chatRef)
-            .push();
+        const newMessageRef = database().ref(chatRef).push();
 
         const newMessageObj = {
             fromDisplayName: auth().currentUser.displayName,

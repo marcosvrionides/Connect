@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Button } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Button, Animated } from 'react-native';
 import Colours from './Colours'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import database from '@react-native-firebase/database';
 import storage from '@react-native-firebase/storage';
@@ -26,6 +27,21 @@ function PostCard(props): Promise<JSX.Element> {
 
     const postsRreference = database().ref('/posts/' + props.userID + '/' + props.postID);
     const likeReference = database().ref('/likes/' + props.postID + '/' + loggedInUser.uid);
+
+    const [showOptions, setShowOptions] = useState(false);
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+
+    const toggleOptions = () => {
+        setShowOptions(!showOptions);
+        Animated.timing(
+            fadeAnim,
+            {
+                toValue: showOptions ? 0 : 1,
+                duration: 500,
+                useNativeDriver: true,
+            }
+        ).start();
+    };
 
     useEffect(() => {
         try {
@@ -152,6 +168,10 @@ function PostCard(props): Promise<JSX.Element> {
         navigation.navigate('Comments', { postID: props.postID })
     }
 
+    const handleDeletePost = () => {
+        postsRreference.remove();
+    }
+
     return (
         <View style={styles.container}>
             {!onProfile && <View style={styles.topSection}>
@@ -184,9 +204,13 @@ function PostCard(props): Promise<JSX.Element> {
                     />
                 )
             )}
-
-            {!onProfile &&
-                <View style={styles.bottomSection}>
+            <View style={styles.bottomSection}>
+                <View>
+                    {loggedInUser.uid === postData.uid &&
+                        <SimpleLineIcons name='options-vertical' size={25} color={Colours.primary} onPress={toggleOptions} />
+                    }
+                </View>
+                <View style={styles.likesComments}>
                     <View style={styles.likeContainer}>
                         <Text style={styles.likeCount}>{numberOfLikes} {numberOfLikes === 1 ? 'Like' : 'Likes'}</Text>
                         {liked ?
@@ -200,7 +224,26 @@ function PostCard(props): Promise<JSX.Element> {
                         <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} onPress={handleNavigateComments} />
                     </View>
                 </View>
-            }
+            </View>
+            {showOptions && (
+                <Animated.View
+                    style={[
+                        styles.optionsOverlay,
+                        postData.file === 'no file' && { flexDirection: 'row' },
+                        {
+                            opacity: fadeAnim,
+                        }
+                    ]}
+                >
+                    <TouchableOpacity onPress={handleDeletePost}>
+                        <Text style={styles.deleteButton}>Delete Post</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.closeButton, postData.file === 'no file' && { flexDirection: 'row' }]} onPress={toggleOptions}>
+                        <FontAwesome name='close' size={80} color={'black'} />
+                        <Text style={styles.closeButtonText}>Close</Text>
+                    </TouchableOpacity>
+                </Animated.View>
+            )}
         </View>
     );
 }
@@ -217,6 +260,37 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         borderColor: Colours.secondary
     },
+    optionsOverlay: {
+        ...StyleSheet.absoluteFillObject, // Cover the entire parent view
+        backgroundColor: 'rgba(255, 255, 255, 0.75)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    deleteButton: {
+        backgroundColor: 'rgba(255, 0, 0, 0.6)',
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 5,
+        marginBottom: 10,
+        color: 'black',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    closeButton: {
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 5,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    closeButtonText: {
+        color: 'black',
+        fontWeight: 'bold',
+        fontSize: 16,
+        marginRight: 5,
+    },
     topSection: {
         display: 'flex',
         flexDirection: 'row',
@@ -225,9 +299,13 @@ const styles = StyleSheet.create({
     bottomSection: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: 10,
+        justifyContent: 'space-between',
         paddingHorizontal: 20,
+    },
+    likesComments: {
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 10,
     },
     likeContainer: {
         display: 'flex',

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, View, FlatList, TextInput, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View, FlatList, TextInput, Dimensions, TouchableOpacity } from 'react-native';
 import Colours from '../Colours'
 import MessageCard from './MessageCard';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import FontAwesome from 'react-native-vector-icons/FontAwesome6';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 function Messages(): JSX.Element {
 
@@ -57,40 +59,69 @@ function Messages(): JSX.Element {
         });
     }, [current_uid]);
 
+    const [showSearchBar, setShowSearchBar] = useState(false)
+
+    const handleCloseSearch = () => {
+        setShowSearchBar(false);
+        setSearchInput('')
+    }
+
     return (
-        <View style={styles.container}>
+        <GestureHandlerRootView style={styles.container}>
             <FlatList
-                ListHeaderComponent={<Text style={styles.header}>Messages</Text>}
+                ListHeaderComponent={
+                    !showSearchBar ?
+                        <View style={styles.listHeader}>
+                            <Text style={styles.title}>
+                                Messages
+                            </Text>
+                            <TouchableOpacity onPress={() => setShowSearchBar(true)}>
+                                <FontAwesome name={'plus'} size={35} color={Colours.text} />
+                            </TouchableOpacity>
+                        </View>
+                        :
+                        <>
+                            <View style={styles.listHeader}>
+                                <TouchableOpacity onPress={handleCloseSearch}>
+                                    <FontAwesome name={'arrow-left'} size={35} color={Colours.text} />
+                                </TouchableOpacity>
+                                <TextInput
+                                    style={[styles.title, { textAlign: 'right' }]}
+                                    placeholder='Search user...'
+                                    placeholderTextColor={Colours.text}
+                                    onChangeText={(input) => setSearchInput(input)}
+                                />
+                            </View>
+                            {searchInput.length > 0 &&
+                                <View style={styles.searchedUsersContainer}>
+                                    <Text style={[styles.title, { marginTop: 0, marginBottom: 10 }]}>Search:</Text>
+                                    <FlatList
+                                        data={searchedUsers}
+                                        renderItem={({ item, index }) => (
+                                            <>
+                                                <MessageCard key={item.uid} secondUserID={item.uid} />
+                                                {index < searchedUsers.length - 1 && <View style={styles.hr} />}
+                                            </>
+                                        )}
+                                        keyExtractor={(item) => item.uid}
+                                    />
+                                </View>
+                            }
+                        </>
+                }
                 data={chats}
                 renderItem={({ item }) =>
-                    <View style={{ marginBottom: 10 }}>
-                        <MessageCard key={item} secondUserID={item} />
-                    </View>
+                    <>
+                        {!showSearchBar &&
+                            <View style={{ marginBottom: 10 }}>
+                                <MessageCard key={item} secondUserID={item} />
+                            </View>
+                        }
+                    </>
                 }
                 keyExtractor={(item) => item}
             />
-            {searchInput.length > 0 &&
-                <View style={styles.searchedUsersContainer}>
-                    <FlatList
-                        style={styles.searchedUsersList}
-                        data={searchedUsers}
-                        renderItem={({ item, index }) => (
-                            <>
-                                <MessageCard key={item.uid} secondUserID={item.uid} />
-                                {index < searchedUsers.length - 1 && <View style={styles.hr} />}
-                            </>
-                        )}
-                        keyExtractor={(item) => item.uid}
-                    />
-                </View>
-            }
-            <TextInput
-                style={styles.userSearch}
-                placeholder='Search...'
-                placeholderTextColor={Colours.text}
-                onChangeText={(input) => setSearchInput(input)}
-            />
-        </View>
+        </GestureHandlerRootView>
     );
 }
 
@@ -100,18 +131,27 @@ const styles = StyleSheet.create({
         height: '100%',
         padding: 10,
     },
-    header: {
+    listHeader: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        lineHeight: 32,
+    },
+    title: {
         color: Colours.text,
         fontSize: 32,
         marginTop: 20,
         marginBottom: 30,
-        textAlign: 'center',
+        padding: 0,
     },
     userSearch: {
-        width: '100%',
-        backgroundColor: Colours.primary,
+        marginTop: 20,
+        marginBottom: 30,
+        marginLeft: 10,
         borderRadius: 10,
-        fontSize: 20,
+        fontSize: 32,
         color: Colours.text
     },
     searchedUsersContainer: {
@@ -130,7 +170,7 @@ const styles = StyleSheet.create({
         width: '95%',
         marginVertical: 10,
         alignSelf: 'center'
-    },
+    }
 });
 
 export default Messages;

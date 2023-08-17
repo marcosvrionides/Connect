@@ -1,11 +1,12 @@
-import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Alert } from 'react-native';
-import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Alert, ToastAndroid } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import Colours from './Colours';
 import * as MediaPicker from "react-native-image-picker";
-import { firebase } from '@react-native-firebase/database';
+import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import { useNavigation } from '@react-navigation/native';
+import VideoPlayer from 'react-native-video-controls';
 
 export default function NewPostForm() {
     const [text, setText] = useState('');
@@ -14,11 +15,11 @@ export default function NewPostForm() {
 
     const navigation = useNavigation();
 
-    const handleCreatePost = async () => {
-        if (text.trim() === '' && imageUri === 'no file') {
-            return;
-        }
+    const [isCreatingPost, setIsCreatingPost] = useState(false);
 
+    const handleCreatePost = async () => {
+        if (text.trim() === '' && imageUri === 'no file' || isCreatingPost) { return; }
+        setIsCreatingPost(true);
         try {
             // Define the post object to be saved in the database
             const newPostObj = {
@@ -32,11 +33,7 @@ export default function NewPostForm() {
             };
 
             // Generate a new post ID using the push() method from the Firebase Realtime Database
-            const newPostRef = firebase
-                .app()
-                .database('https://studentsthoughtsfyp-default-rtdb.europe-west1.firebasedatabase.app/')
-                .ref('/posts/' + auth().currentUser.uid)
-                .push();
+            const newPostRef = database().ref('/posts/' + auth().currentUser.uid).push();
 
             const postId = newPostRef.key; // Get the generated post ID
 
@@ -65,6 +62,8 @@ export default function NewPostForm() {
         } catch (error) {
             // Handle any errors that occurred while saving the message or uploading the file
             console.error('Error saving message:', error);
+        } finally {
+            setIsCreatingPost(false);
         }
     }
 
@@ -89,6 +88,21 @@ export default function NewPostForm() {
         );
     };
 
+    const isImageFile = (filename) => {
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
+        const extension = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+        return imageExtensions.includes(extension);
+    };
+
+    useEffect(() => {
+        if (isCreatingPost) {
+            ToastAndroid.show(
+                'Posting...',
+                ToastAndroid.LONG,
+            )
+        }
+    },[isCreatingPost])
+
     return (
         <View style={styles.container}>
             <TextInput
@@ -100,7 +114,20 @@ export default function NewPostForm() {
                 onChangeText={setText}
             />
             {imageUri !== 'no file' && (
-                <Image style={styles.image} source={{ uri: imageUri }} resizeMode="cover" />
+                isImageFile(fileName) ? (
+                    <Image style={styles.image} source={{ uri: imageUri }} resizeMode="contain" />
+                ) : (
+                    <VideoPlayer
+                        style={[styles.image, {aspectRatio: undefined}]}
+                        source={{ uri: imageUri }}
+                        resizeMode="contain"
+                        toggleResizeModeOnFullscreen={false}
+                        scrubbing={1}
+                        disableFullscreen
+                        disableVolume
+                        disableBack
+                    />
+                )
             )}
             <TouchableOpacity style={styles.selectImageBtn} onPress={handleFileSelection}>
                 <Text style={styles.selectImageText}>Select Image or Video</Text>
@@ -126,8 +153,12 @@ const styles = StyleSheet.create({
     },
     image: {
         width: '100%',
-        aspectRatio: 1,
-        marginBottom: 16,
+        aspectRatio: 3 / 4,
+        borderWidth: 2,
+        borderColor: Colours.primary,
+        borderRadius: 25,
+        backgroundColor: Colours.accent,
+        marginBottom: 10
     },
     selectImageBtn: {
         backgroundColor: Colours.secondary,

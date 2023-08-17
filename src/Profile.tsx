@@ -79,7 +79,7 @@ export default function Profile() {
                 userProfileRef.update({
                     about: newAbout,
                 })
-                ToastAndroid.show('Edits saved', ToastAndroid.SHORT)
+                ToastAndroid.show('Changes saved', ToastAndroid.SHORT)
             }
 
         }
@@ -90,13 +90,7 @@ export default function Profile() {
         MediaPicker.launchImageLibrary(
             { mediaType: 'photo' },
             (response) => {
-                if (response.didCancel) {
-                    console.log('User cancelled image picker');
-                } else if (response.error) {
-                    console.log('MediaPicker Error: ', response.error);
-                } else if (response.customButton) {
-                    console.log('User tapped custom button: ', response.customButton);
-                } else {
+                if (!response.didCancel || !response.error || !response.customButton) {
                     setNewProfilePiceUri(response.assets[0].uri);
                 }
             },
@@ -135,9 +129,8 @@ export default function Profile() {
         <ScrollView style={styles.container}>
             {userProfile ? (
                 <View>
-
                     {loggedInUser.uid === uid &&
-                        <View style={{ position: 'absolute', top: 0, right: 0, display: 'flex', flexDirection: 'row', gap: 10 }}>
+                        <View style={{ display: 'flex', flexDirection: 'row', gap: 10, justifyContent: 'flex-end' }}>
                             {editMode &&
                                 <TouchableOpacity style={styles.discardButton} onPress={discardEdits}>
                                     <Text style={styles.discardButtonText}>Discard</Text>
@@ -147,14 +140,18 @@ export default function Profile() {
                             </TouchableOpacity>
                         </View>
                     }
-                    <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                         <View style={styles.profilePicContainer}>
                             <Image
                                 style={styles.profilePic}
                                 source={{
-                                    uri: userProfile.profilePicture === undefined ? 'https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b'
-                                        : userProfile.profilePicture
+                                    uri: newProfilePicUri !== ''
+                                        ? newProfilePicUri
+                                        : (userProfile.profilePicture !== undefined
+                                            ? userProfile.profilePicture
+                                            : 'https://firebasestorage.googleapis.com/v0/b/studentsthoughtsfyp.appspot.com/o/default_profile_picj.jpg?alt=media&token=39c38fa6-5ac7-4e2e-a2eb-0c9157c6194b')
                                 }}
+
                             />
                             {editMode &&
                                 <FontAwesome
@@ -189,11 +186,20 @@ export default function Profile() {
                         }}>
                         Posts
                     </Text>
-                    <FlatList
-                        data={userPosts}
-                        renderItem={({ item }) => <PostCard userID={uid} postID={item.postID} onProfile={true} />}
-                        keyExtractor={(item) => item}
-                    />
+                    <View style={{ flex: 1, padding: 16 }}>
+                        <FlatList
+                            data={userPosts}
+                            renderItem={({ item }) => (
+                                <View style={{ flex: 1, width: '33.33%', aspectRatio: 0.75, paddingHorizontal: 8 }}>
+                                    <PostCard userID={uid} postID={item.postID} onProfile={true} hideDetails={true}/>
+                                </View>
+                            )}
+                            keyExtractor={(item) => item}
+                            numColumns={3}
+                            contentContainerStyle={{ justifyContent: 'space-between' }}
+                        />
+                    </View>
+
 
                 </View>
             ) : (

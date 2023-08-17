@@ -204,7 +204,7 @@ function PostCard(props): Promise<JSX.Element> {
                     />
                 )
             )}
-            <View style={styles.bottomSection}>
+            {!props.hideDetails && <View style={styles.bottomSection}>
                 <View>
                     {loggedInUser.uid === postData.uid &&
                         <SimpleLineIcons name='options-vertical' size={25} color={Colours.primary} onPress={toggleOptions} />
@@ -224,8 +224,8 @@ function PostCard(props): Promise<JSX.Element> {
                         <MaterialCommunityIcons name='comment-minus-outline' size={25} color={Colours.primary} onPress={handleNavigateComments} />
                     </View>
                 </View>
-            </View>
-            {showOptions && (
+            </View>}
+            {!props.hideDetails && showOptions && (
                 <Animated.View
                     style={[
                         styles.optionsOverlay,

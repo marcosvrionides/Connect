@@ -6,11 +6,12 @@ import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import { useNavigation } from '@react-navigation/native';
-import VideoPlayer from 'react-native-video-controls';
+import Video from 'react-native-video';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 export default function NewPostForm() {
     const [text, setText] = useState('');
-    const [imageUri, setImageUri] = useState('no file');
+    const [mediaUri, setMediaUri] = useState('no file');
     const [fileName, setFileName] = useState('');
 
     const navigation = useNavigation();
@@ -18,7 +19,7 @@ export default function NewPostForm() {
     const [isCreatingPost, setIsCreatingPost] = useState(false);
 
     const handleCreatePost = async () => {
-        if (text.trim() === '' && imageUri === 'no file' || isCreatingPost) { return; }
+        if (text.trim() === '' && mediaUri === 'no file' || isCreatingPost) { return; }
         setIsCreatingPost(true);
         try {
             // Define the post object to be saved in the database
@@ -27,7 +28,7 @@ export default function NewPostForm() {
                 content: text,
                 displayName: auth().currentUser?.displayName ? auth().currentUser?.displayName : 'Anonymous',
                 email: auth().currentUser?.email,
-                file: imageUri,
+                file: mediaUri,
                 timestamp: new Date().getTime(),
                 uid: auth().currentUser?.uid
             };
@@ -37,10 +38,10 @@ export default function NewPostForm() {
 
             const postId = newPostRef.key; // Get the generated post ID
 
-            if (imageUri !== 'no file') {
+            if (mediaUri !== 'no file') {
                 // Upload the selected file to Firebase Storage with the post ID as the path
                 const storageRef = storage().ref(postId);
-                await storageRef.putFile(imageUri);
+                await storageRef.putFile(mediaUri);
 
                 // Update the post object with the file path
                 const updatedPostObj = {
@@ -57,7 +58,7 @@ export default function NewPostForm() {
 
             // Clear the new message input field after sending
             setText('');
-            setImageUri('no file');
+            setMediaUri('no file');
             navigation.navigate('Home')
         } catch (error) {
             // Handle any errors that occurred while saving the message or uploading the file
@@ -74,15 +75,9 @@ export default function NewPostForm() {
                 mediaType: 'mixed',
             },
             (response) => {
-                if (response.didCancel) {
-                    console.log('User cancelled image picker');
-                } else if (response.error) {
-                    console.log('MediaPicker Error: ', response.error);
-                } else if (response.customButton) {
-                    console.log('User tapped custom button: ', response.customButton);
-                } else {
+                if (!response.didCancel && !response.error && !response.customButton) {
                     setFileName(response.assets[0].fileName);
-                    setImageUri(response.assets[0].uri);
+                    setMediaUri(response.assets[0].uri);
                 }
             },
         );
@@ -101,7 +96,36 @@ export default function NewPostForm() {
                 ToastAndroid.LONG,
             )
         }
-    },[isCreatingPost])
+    }, [isCreatingPost])
+
+    const handleRemoveMedia = () => {
+        setFileName('');
+        setMediaUri('no file')
+    }
+
+    const renderMediaContent = () => {
+        if (mediaUri !== 'no file') {
+            return (
+                <View style={styles.mediaContainer}>
+                    {isImageFile(fileName) ? (
+                        <Image style={styles.imageVideo} source={{ uri: mediaUri }} resizeMode="contain" />
+                    ) : (
+                        <Video
+                            style={styles.imageVideo}
+                            source={{ uri: mediaUri }}
+                            resizeMode={'contain'}
+                        />
+                    )}
+                    <TouchableOpacity style={styles.removeMediaBtn} onPress={handleRemoveMedia}>
+                        <FontAwesome name={'trash'} size={35} color={Colours.text} />
+                    </TouchableOpacity>
+                </View>
+            );
+        }
+        return null;
+    };
+
+    console.log(mediaUri)
 
     return (
         <View style={styles.container}>
@@ -113,22 +137,7 @@ export default function NewPostForm() {
                 value={text}
                 onChangeText={setText}
             />
-            {imageUri !== 'no file' && (
-                isImageFile(fileName) ? (
-                    <Image style={styles.image} source={{ uri: imageUri }} resizeMode="contain" />
-                ) : (
-                    <VideoPlayer
-                        style={[styles.image, {aspectRatio: undefined}]}
-                        source={{ uri: imageUri }}
-                        resizeMode="contain"
-                        toggleResizeModeOnFullscreen={false}
-                        scrubbing={1}
-                        disableFullscreen
-                        disableVolume
-                        disableBack
-                    />
-                )
-            )}
+            {renderMediaContent()}
             <TouchableOpacity style={styles.selectImageBtn} onPress={handleFileSelection}>
                 <Text style={styles.selectImageText}>Select Image or Video</Text>
             </TouchableOpacity>
@@ -151,7 +160,7 @@ const styles = StyleSheet.create({
         borderBottomColor: Colours.accent,
         color: Colours.text,
     },
-    image: {
+    imageVideo: {
         width: '100%',
         aspectRatio: 3 / 4,
         borderWidth: 2,
@@ -182,5 +191,18 @@ const styles = StyleSheet.create({
     createPostText: {
         color: Colours.text,
         fontSize: 16,
+    },
+    mediaContainer: {
+        position: 'relative',
+    },
+    removeMediaBtn: {
+        position: 'absolute',
+        bottom: 20,
+        right: 10,
+        backgroundColor: Colours.accent,
+        padding: 5,
+        borderRadius: 17.5,
+        borderWidth: 3,
+        borderColor: Colours.background,
     },
 });

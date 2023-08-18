@@ -126,7 +126,7 @@ export default function Profile() {
     userPosts.sort((a, b) => b.timestamp - a.timestamp)
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} keyboardShouldPersistTaps='always'>
             {userProfile ? (
                 <View>
                     {loggedInUser.uid === uid &&

@@ -69,6 +69,7 @@ function Messages(): JSX.Element {
     return (
         <GestureHandlerRootView style={styles.container}>
             <FlatList
+                keyboardShouldPersistTaps='always'
                 ListHeaderComponent={
                     !showSearchBar ?
                         <View style={styles.listHeader}>

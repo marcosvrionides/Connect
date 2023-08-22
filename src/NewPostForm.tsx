@@ -1,13 +1,13 @@
 import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Alert, ToastAndroid } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Colours from './Colours';
-import * as MediaPicker from "react-native-image-picker";
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import { useNavigation } from '@react-navigation/native';
 import Video from 'react-native-video';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import DocumentPicker from 'react-native-document-picker';
 
 export default function NewPostForm() {
     const [text, setText] = useState('');
@@ -68,25 +68,36 @@ export default function NewPostForm() {
         }
     }
 
-    const handleFileSelection = () => {
-        // Launch the image picker or camera using launchImageLibrary from react-native-image-picker
-        MediaPicker.launchImageLibrary(
-            {
-                mediaType: 'mixed',
-            },
-            (response) => {
-                if (!response.didCancel && !response.error && !response.customButton) {
-                    setFileName(response.assets[0].fileName);
-                    setMediaUri(response.assets[0].uri);
-                }
-            },
-        );
-    };
+    const handleMediaSelection = async () => {
+        try {
+            const result = await DocumentPicker.pickSingle({
+                type: [DocumentPicker.types.audio, DocumentPicker.types.images, DocumentPicker.types.video],
+            });
+            setFileName(result.name);
+            setMediaUri(result.uri);
+        } catch (error) {
+            if (!DocumentPicker.isCancel(error)) {
+                console.log("Error picking audio:", error);
+            }
+        }
+    }
 
-    const isImageFile = (filename) => {
+    const fileType = (filename) => {
         const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
+        const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.3gp', '.wmv', '.mpeg', '.flv']
+        const audioExtensions = ['.mp3', '.wav', '.ogg', '.aac', '.m4a'];
+
         const extension = filename.substring(filename.lastIndexOf('.')).toLowerCase();
-        return imageExtensions.includes(extension);
+
+        if (imageExtensions.includes(extension)) {
+            return 'image'
+        } else if (videoExtensions.includes(extension)) {
+            return 'video'
+        } else if (audioExtensions.includes(extension)) {
+            return 'audio'
+        } else {
+            console.log('error: unsupported file type')
+        }
     };
 
     useEffect(() => {
@@ -107,15 +118,22 @@ export default function NewPostForm() {
         if (mediaUri !== 'no file') {
             return (
                 <View style={styles.mediaContainer}>
-                    {isImageFile(fileName) ? (
+                    {fileType(fileName) === 'image' ?
                         <Image style={styles.imageVideo} source={{ uri: mediaUri }} resizeMode="contain" />
-                    ) : (
-                        <Video
-                            style={styles.imageVideo}
-                            source={{ uri: mediaUri }}
-                            resizeMode={'contain'}
-                        />
-                    )}
+                        : fileType(fileName) === 'video' ?
+                            <Video
+                                style={styles.imageVideo}
+                                source={{ uri: mediaUri }}
+                                resizeMode={'contain'}
+                            />
+                            : fileType(fileName) === 'audio' ?
+                                // <Video
+                                //     style={styles.audioPlayer}
+                                //     source={{ uri: mediaUri }}
+                                // />
+                                <Text style={{color: 'white'}}>audio file</Text>
+                                : handleRemoveMedia
+                    }
                     <TouchableOpacity style={styles.removeMediaBtn} onPress={handleRemoveMedia}>
                         <FontAwesome name={'trash'} size={35} color={Colours.text} />
                     </TouchableOpacity>
@@ -125,7 +143,6 @@ export default function NewPostForm() {
         return null;
     };
 
-    console.log(mediaUri)
 
     return (
         <View style={styles.container}>
@@ -138,8 +155,8 @@ export default function NewPostForm() {
                 onChangeText={setText}
             />
             {renderMediaContent()}
-            <TouchableOpacity style={styles.selectImageBtn} onPress={handleFileSelection}>
-                <Text style={styles.selectImageText}>Select Image or Video</Text>
+            <TouchableOpacity style={styles.selectImageVideoBtn} onPress={handleMediaSelection}>
+                <Text style={styles.selectImageVideoText}>Select Image, Video or Audio</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.createPostBtn} onPress={handleCreatePost}>
                 <Text style={styles.createPostText}>Create Post</Text>
@@ -169,7 +186,13 @@ const styles = StyleSheet.create({
         backgroundColor: Colours.accent,
         marginBottom: 10
     },
-    selectImageBtn: {
+    audioPlayer: {
+        width: '100%',
+        height: 40,
+        marginBottom: 10,
+        backgroundColor: Colours.accent,
+    },
+    selectImageVideoBtn: {
         backgroundColor: Colours.secondary,
         padding: 12,
         borderRadius: 5,
@@ -177,7 +200,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginBottom: 16,
     },
-    selectImageText: {
+    selectImageVideoText: {
         color: Colours.text,
         fontSize: 16,
     },
@@ -187,6 +210,9 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
+        position: 'absolute',
+        bottom: 10,
+        right: 10
     },
     createPostText: {
         color: Colours.text,

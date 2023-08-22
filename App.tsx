@@ -11,6 +11,8 @@ import NewPostForm from './src/NewPostForm';
 import Profile from './src/Profile';
 import Comments from './src/Comments';
 import { GAMBannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
+import Post from './src/Post';
+import NewCommentForm from './src/NewCommentForm';
 
 const Stack = createNativeStackNavigator();
 
@@ -63,6 +65,8 @@ function App(): JSX.Element {
           <Stack.Screen name='NewPostForm' component={NewPostForm} options={{ headerShown: false }} />
           <Stack.Screen name='Profile' component={Profile} options={{ headerShown: false }} />
           <Stack.Screen name='Comments' component={Comments} options={{ headerShown: false }} />
+          <Stack.Screen name='Post' component={Post} options={{ headerShown: false }} />
+          <Stack.Screen name='NewComment' component={NewCommentForm} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </>

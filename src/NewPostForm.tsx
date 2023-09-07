@@ -71,13 +71,13 @@ export default function NewPostForm() {
     const handleMediaSelection = async () => {
         try {
             const result = await DocumentPicker.pickSingle({
-                type: [DocumentPicker.types.audio, DocumentPicker.types.images, DocumentPicker.types.video],
+                type: [/*DocumentPicker.types.audio, */DocumentPicker.types.images, DocumentPicker.types.video],
             });
             setFileName(result.name);
             setMediaUri(result.uri);
         } catch (error) {
             if (!DocumentPicker.isCancel(error)) {
-                console.log("Error picking audio:", error);
+                console.log("Error picking file:", error);
             }
         }
     }
@@ -93,8 +93,8 @@ export default function NewPostForm() {
             return 'image'
         } else if (videoExtensions.includes(extension)) {
             return 'video'
-        } else if (audioExtensions.includes(extension)) {
-            return 'audio'
+        // } else if (audioExtensions.includes(extension)) {
+        //     return 'audio'
         } else {
             console.log('error: unsupported file type')
         }
@@ -126,12 +126,12 @@ export default function NewPostForm() {
                                 source={{ uri: mediaUri }}
                                 resizeMode={'contain'}
                             />
-                            : fileType(fileName) === 'audio' ?
-                                // <Video
-                                //     style={styles.audioPlayer}
-                                //     source={{ uri: mediaUri }}
-                                // />
-                                <Text style={{color: 'white'}}>audio file</Text>
+                            // : fileType(fileName) === 'audio' ?
+                            //     <Video
+                            //         style={styles.audioPlayer}
+                            //         source={{ uri: mediaUri }}
+                            //     />
+                            //     <Text style={{color: 'white'}}>audio file</Text>
                                 : handleRemoveMedia
                     }
                     <TouchableOpacity style={styles.removeMediaBtn} onPress={handleRemoveMedia}>

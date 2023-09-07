@@ -1,7 +1,6 @@
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import Colours from '../Colours';
-import { firebase } from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 
@@ -40,10 +39,9 @@ const OpenChat = ({ route }) => {
 
     const [newMessage, setNewMessage] = useState('');
 
-    const handleSendMessage = () => {
-        if (newMessage.trim() === '') {
-            return;
-        }
+    const handleSendMessage = async () => {
+
+        if (newMessage.trim() === '') { return; }
 
         const newMessageRef = database().ref(chatRef).push();
 

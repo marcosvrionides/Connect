@@ -13,50 +13,17 @@ import Comments from './src/Comments';
 import { GAMBannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 import Post from './src/Post';
 import NewCommentForm from './src/NewCommentForm';
-import { Alert, PermissionsAndroid } from 'react-native';
-import database from '@react-native-firebase/database'
-import messaging from '@react-native-firebase/messaging';
 // import ThemeSelector from './src/ThemeSelector';
 
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
 
-  PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-
-  // Register background handler
-  messaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log('Message handled in the background!', remoteMessage);
-  });
-
-  useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-    });
-
-    return unsubscribe;
-  }, []);
-
   const [showAds, setShowAds] = useState(true);
 
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
-  const [token, setToken] = useState('')
-
-  const checkToken = async () => {
-    const fcmToken = await messaging().getToken();
-    if (fcmToken) {
-      setToken(fcmToken);
-    }
-  }
-  checkToken()
-
-  useEffect(() => {
-    if (!user) { return }
-    const userRef = database().ref('users/' + user.uid);
-    userRef.update({ fcmToken: token });
-  }, [user])
 
   // Handle user state changes
   function onAuthStateChanged(user) {

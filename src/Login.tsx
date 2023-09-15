@@ -23,29 +23,6 @@ export default function Login() {
             });
     };
 
-    useEffect(() => {
-        GoogleSignin.configure({
-            webClientId: '880511116664-tkievcq6mktm9f7nlckhd0kf4t3eek4m.apps.googleusercontent.com', // Replace with your Web Client ID from Firebase
-        });
-    }, []);
-
-    // Function to handle Google Sign-In
-    const onGoogleSignIn = async () => {
-        try {
-            // Get the user's ID token
-            const { idToken } = await GoogleSignin.signIn();
-
-            // Create a Google credential with the token
-            const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-            // Sign in with the Google credential
-            await auth().signInWithCredential(googleCredential);
-        } catch (error) {
-            console.log('Sign sign-in error:', error.message);
-            Alert.alert('Sign-in error:', error.message);
-        }
-    };
-
     const handleGuestLogin = async () => {
         try {
             const userCredential = await auth().signInAnonymously();

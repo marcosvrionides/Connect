@@ -54,7 +54,7 @@ function App(): JSX.Element {
       {showAds &&
         <GAMBannerAd
           unitId={'ca-app-pub-7497957931538271/8908530578'}
-          sizes={[BannerAdSize.FULL_BANNER]}
+          sizes={[BannerAdSize.ANCHORED_ADAPTIVE_BANNER]}
           onAdFailedToLoad={onAdFailedToLoad}
         />}
       <NavigationContainer>
